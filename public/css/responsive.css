@@ -390,6 +390,33 @@
     #page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content .tab-content .btn-quantity .btn-checkout {
         margin-top: 40px;
     }
+  /*================Page checkout=================*/
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-2,
+  #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-3 {
+        width: 73%;
+    }
+
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.pay-card {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 576px) {
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content ul {
+        padding: 0;
+    }
+
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-shipping .wrap-shipping,
+  #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing {
+        flex-wrap: wrap;
+    }
+
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-shipping .wrap-shipping .shipping-left,
+  #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-shipping .wrap-shipping .shipping-right,
+  #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing .billing-left,
+  #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing .billing-right {
+        width: 100%;
+    }
 }
 
 @media only screen and (max-width: 414px) {
@@ -479,6 +506,10 @@
     #page-detail-option .wrap-detail-option .wrap-product__template .template-item {
         width: 100%;
     }
+  /*=========Page Checkout==============*/
+    #page-checkout .wrap-checkout .wrap-checkout-step {
+        padding: 40px 20px;
+    }
 }
 
 @media only screen and (max-width: 375px) {
@@ -519,6 +550,10 @@
 
     #page-detail-option .wrap-detail-option .title-detail-option h4 {
         font-size: 22px;
+    }
+  /*=====================Page checkout================*/
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content ul li {
+        width: 33%;
     }
 }
 
