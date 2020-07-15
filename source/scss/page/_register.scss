@@ -1,0 +1,113 @@
+#page-register {
+    background-color: #eef2f5;
+    padding-top: 100px;
+    .wrap-register {
+        .wrap-content__register {
+            background: #fff;
+            padding: 70px 30%;
+            .title-register {
+                text-align: center;
+                h4 {
+                    font-size: 27px;
+                    font-family: "Nexa Bold";
+                    color: rgb(193, 0, 0);
+                    text-transform: uppercase;
+                    line-height: 1;
+                    margin-bottom: 0;
+                }
+                p {
+                    font-size: 17px;
+                    font-family: "Nexa Light";
+                    color: rgb(34, 34, 34);
+                    line-height: 2.529;
+                }
+            }
+            /*--------------Register------------------*/
+            .wrap-register__form {
+                p {
+                    font-size: 17px;
+                    font-family: "Nexa Light";
+                    color: #202020;
+                    line-height: 1.5;
+                    margin-bottom: 0;
+                }
+                input[type="text"],
+                input[type="email"],
+                input[type="tel"],
+                select {
+                    width: 100%;
+                    width: 100%;
+                    border: 1px solid #cccccc;
+                    outline: none;
+                    padding: 10px 10px;
+                    font-size: 17px;
+                    font-family: "Nexa Light";
+                    color: #202020;
+                    line-height: 1.5;
+                }
+                .email__register,
+                .password__register,
+                .first__register,
+                .last__register,
+                .business__register,
+                .address__register,
+                .country__register,
+                .zipcode__register,
+                .phone__register {
+                    margin-bottom: 15px;
+                }
+                .password__register {
+                    display: flex;
+                    justify-content: space-between;
+                    .type__pass,
+                    .re__pass {
+                        width: 47.5%;
+                    }
+                }
+                .country__register {
+                    display: flex;
+                    justify-content: space-between;
+                    .state,
+                    .city {
+                        width: 47.5%;
+                    }
+                }
+            }
+            .wrap-term__register {
+                .gtg-term,
+                .gtg-email {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    .check {
+                        margin-right: 8px;
+                    }
+                    .content-check {
+                        p {
+                            font-size: 17px;
+                            font-family: "Nexa Light";
+                            color: rgb(32, 32, 32);
+                            line-height: 1.882;
+                            margin-bottom: 0;
+                            a {
+                                color: #c10000;
+                                text-decoration: underline;
+                            }
+                        }
+                    }
+                }
+            }
+            .btn-register {
+                margin-top: 30px;
+                text-align: center;
+                .wrap-register {
+                    position: relative;
+                    text-align: center;
+                    padding-top: 0px;
+                    display: inline-block;
+                    @extend %btn-submit;
+                }
+            }
+        }
+    }
+}

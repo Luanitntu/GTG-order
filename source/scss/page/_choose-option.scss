@@ -1,0 +1,157 @@
+#page-choose-option {
+    background-color: #eef2f5;
+    padding-top: 100px;
+    .wrap-choose-option {
+        background: #fff;
+        padding: 60px 54px 90px;
+        .title__choose-option {
+            text-align: center;
+            p {
+                font-size: 27px;
+                font-family: "Lato";
+                color: rgb(54, 54, 54);
+                line-height: 0.24;
+            }
+        }
+        .option-items {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 70px;
+            .title-option {
+                margin-bottom: 50px;
+                h4 {
+                    @extend %h4-option;
+                }
+            }
+            .sub-option {
+                p {
+                    @extend %p-option;
+                }
+                p.note {
+                    font-size: 18px;
+                    font-family: "Lato";
+                    color: #000;
+                    line-height: 1.4;
+                    text-align: center;
+                    padding: 0 14%;
+                    margin-bottom: 30px;
+                }
+            }
+            .btn-option {
+                text-align: center;
+                padding-bottom: 20px;
+                display: flex;
+                justify-content: center;
+                a {
+                    position: relative;
+                    @extend %btn-option-a;
+                    @extend %after-btn-option;
+                    @extend %before-btn-option;
+                }
+            }
+            .upload-design {
+                width: 40.5%;
+            }
+            .our-template,
+            .new-design {
+                width: (350px/1292px)*100%;
+                .sub-option {
+                    margin-bottom: 40px;
+                }
+            }
+            .our-template {
+                background-color: #73bfdf;
+                padding: 22px 40px;
+                .title-option {
+                    h4 {
+                        position: relative;
+                        &:before {
+                            content: '';
+                            width: 94px;
+                            height: 5px;
+                            top: 85px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            border-radius: 10px;
+                            background-color: #67adca;
+                            position: absolute;
+                        }
+                    }
+                }
+                .btn-option {
+                    a {
+                        background-color: #4186a3;
+                        &:after {
+                            background: url('../images/arrow-our-template.png')no-repeat;
+                        }
+                        &:hover {
+                            background-color: #73bfdf;
+                        }
+                    }
+                }
+            }
+            .upload-design {
+                background-color: #ee9b94;
+                padding: 22px 40px;
+                .title-option {
+                    h4 {
+                        position: relative;
+                        &:before {
+                            content: '';
+                            width: 94px;
+                            height: 5px;
+                            top: 52px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            border-radius: 10px;
+                            background-color: #d68a84;
+                            position: absolute;
+                        }
+                    }
+                }
+                .btn-option {
+                    a {
+                        background-color: #db8983;
+                        &:after {
+                            background: url('../images/arrow-upload.png')no-repeat;
+                        }
+                        &:hover {
+                            background-color: #ee9b94;
+                        }
+                    }
+                }
+            }
+            .new-design {
+                background-color: #c594ee;
+                padding: 22px 40px;
+                .title-option {
+                    h4 {
+                        position: relative;
+                        &:before {
+                            content: '';
+                            width: 94px;
+                            height: 5px;
+                            top: 85px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            border-radius: 10px;
+                            background-color: #b386d8;
+                            position: absolute;
+                        }
+                    }
+                }
+                .btn-option {
+                    a {
+                        background-color: #8c57b8;
+                        &:after {
+                            background: url('../images/arrow-new-design.png')no-repeat;
+                        }
+                        &:hover {
+                            background-color: #c594ee;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

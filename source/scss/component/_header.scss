@@ -1,0 +1,134 @@
+#header-page {
+    background-color: #eef2f5;
+    padding-top: 40px;
+    .sticky {
+        position: relative;
+        .wrap-menu {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            .ordering {
+                position: absolute;
+                top: 14%;
+                right: 8%;
+                p {
+                    font-size: 110px;
+                    font-family: "Nexa Bold";
+                    color: rgba(1, 1, 1, 0.078);
+                    text-transform: uppercase;
+                    line-height: 0.545;
+                }
+            }
+            .logo {
+                a {
+                    display: inline-block;
+                }
+            }
+            .wrap-header-menu {
+                margin-bottom: -5px;
+                .navbar-sticky {
+                    ul {
+                        flex-direction: row;
+                        li {
+                            padding: 0 22px;
+                            a {
+                                font-size: 32px;
+                                font-family: "Nexa Bold";
+                                color: #363636;
+                                text-transform: uppercase;
+                                line-height: 100%;
+                                text-align: left;
+                                text-decoration: none;
+                                margin-bottom: 0;
+                            }
+                            &:hover a {
+                                color: #c10000;
+                            }
+                        }
+                    }
+                }
+            }
+            .wrap-register {
+                position: relative;
+                .title-register {
+                    a {
+                        font-size: 19px;
+                        font-family: "Nexa Bold";
+                        color: rgb(238, 242, 245);
+                        text-transform: uppercase;
+                        line-height: 100%;
+                        text-decoration: none;
+                        padding: 25px;
+                        background: #c10000;
+                    }
+                }
+                .login-form {
+                    display: none;
+                    position: absolute;
+                    width: 430px;
+                    top: 70px;
+                    right: 0;
+                    background-color: #dfdfdf;
+                    padding: 20px;
+                    z-index: 9;
+                    input[type="email"],
+                    input[type="text"] {
+                        width: 100%;
+                        border: 0;
+                        outline: none;
+                        padding: 10px 10px;
+                        font-size: 17px;
+                        font-family: "Nexa Light";
+                        color: #202020;
+                        line-height: 1.5;
+                    }
+                    .wrap-email {
+                        margin-bottom: 10px;
+                    }
+                    .wrap-email,
+                    .wrap-pass {
+                        p {
+                            font-size: 17px;
+                            font-family: "Nexa Bold";
+                            color: rgb(54, 54, 54);
+                            line-height: 1.118;
+                            margin-bottom: 5px;
+                        }
+                    }
+                    .wrap-btn-login {
+                        margin-top: 30px;
+                        text-align: center;
+                        .submit {
+                            position: relative;
+                            text-align: center;
+                            padding-top: 0px;
+                            display: inline-block;
+                            @extend %btn-submit;
+                        }
+                    }
+                    .wrap-create-acc {
+                        margin-top: 30px;
+                        text-align: center;
+                        p {
+                            font-size: 17px;
+                            font-family: "Nexa Light";
+                            color: #202020;
+                            line-height: 1.412;
+                            a {
+                                font-size: 17px;
+                                font-family: "Nexa Bold";
+                                color: #c10000;
+                                text-decoration: underline;
+                                line-height: 1.412;
+                            }
+                        }
+                    }
+                }
+            }
+            .navbar-button {
+                display: none;
+            }
+        }
+    }
+}

@@ -1,0 +1,293 @@
+#page-checkout {
+    background-color: #eef2f5;
+    padding-top: 100px;
+    .wrap-checkout {
+        position: relative;
+        .back {
+            position: absolute;
+            z-index: 2;
+            left: 3%;
+            top: -50px;
+            a {
+                font-size: 20px;
+                font-family: "Nexa Light";
+                color: #363636;
+                line-height: 3.333;
+                text-decoration: none;
+                position: relative;
+                &:before {
+                    content: '';
+                    width: 32px;
+                    height: 10px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    left: -83%;
+                    background: url('../images/arrow-back.png')no-repeat;
+                    position: absolute;
+                }
+                &:hover {
+                    color: #c10000;
+                }
+            }
+        }
+        .wrap-checkout-step {
+            background: #fff;
+            padding: 50px 275px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            .wrap-form-step {
+                width: 100%;
+                .wrap-content {
+                    ul {
+                        list-style: none;
+                        padding: 0 40px;
+                        margin-bottom: 60px;
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: space-around;
+                        border: 0;
+                        li {
+                            width: 28%;
+                            text-align: center;
+                            position: relative;
+                            a {
+                                font-size: 18px;
+                                font-family: "Nexa Bold";
+                                color: rgb(225, 225, 225);
+                                line-height: 2.333;
+                                text-decoration: none;
+                                border: 0;
+                                pointer-events: none;
+                                span.current-info,
+                                span.number {
+                                    display: none;
+                                }
+                            }
+                            &.active {
+                                a {
+                                    color: #000;
+                                }
+                                &:before {
+                                    content: '';
+                                    width: 100%;
+                                    height: 5px;
+                                    top: 100%;
+                                    left: 0;
+                                    background: #c10000;
+                                    border-radius: 50px;
+                                    position: absolute;
+                                }
+                            }
+                            &:before {
+                                content: '';
+                                width: 100%;
+                                height: 5px;
+                                top: 100%;
+                                left: 0;
+                                background: #e1e1e1;
+                                border-radius: 50px;
+                                position: absolute;
+                            }
+                        }
+                    }
+                    .tab-content {
+                        .wrap-form-shipping {
+                            margin-bottom: 28px;
+                            padding: 0 80px;
+                            h4 {
+                                font-size: 17px;
+                                font-family: "Nexa Bold";
+                                color: rgb(28, 28, 28);
+                                text-transform: uppercase;
+                                line-height: 2.529;
+                            }
+                            .wrap-shipping {
+                                display: flex;
+                                justify-content: space-between;
+                                .shipping-left,
+                                .shipping-right {
+                                    width: 48%;
+                                }
+                                p {
+                                    font-size: 16px;
+                                    font-family: "Lato";
+                                    color: rgb(28, 28, 28);
+                                    line-height: 2.063;
+                                    margin-bottom: 0;
+                                }
+                                input[type="text"],
+                                input[type="tel"] {
+                                    width: 100%;
+                                    border: 1px solid #cccccc;
+                                    outline: none;
+                                    padding: 10px;
+                                    font-size: 17px;
+                                    font-family: "Nexa Light";
+                                    color: #202020;
+                                    line-height: 1.5;
+                                }
+                                select {
+                                    width: 100%;
+                                    border: 1px solid #cccccc;
+                                    outline: none;
+                                    padding: 11px 10px;
+                                    font-size: 17px;
+                                    font-family: "Nexa Light";
+                                    color: #202020;
+                                    line-height: 1.5;
+                                }
+                            }
+                        }
+                        .next-step {
+                            ul {
+                                margin-top: 40px;
+                                li.next-step-2 {
+                                    width: 33%;
+                                    padding: 9px 80px 9px 25px;
+                                }
+                                li.next-step-3 {
+                                    width: 40%;
+                                    padding: 9px 70px 9px 25px;
+                                }
+                                li.pay-card {
+                                    width: 40%;
+                                    padding: 9px 70px 9px 25px;
+                                }
+                                li.next-step-2,
+                                li.next-step-3,
+                                li.pay-card {
+                                    background: #dc2f2e;
+                                    border: 3px solid #c10000;
+                                    font-size: 25px;
+                                    font-family: "Nexa Bold";
+                                    color: #fff;
+                                    text-transform: uppercase;
+                                    line-height: 1.2;
+                                    text-align: left;
+                                    outline: none;
+                                    cursor: pointer;
+                                    position: relative;
+                                    &:before {
+                                        content: '';
+                                        width: 54px;
+                                        height: 100%;
+                                        top: 0;
+                                        right: 0;
+                                        left: unset;
+                                        border-radius: 0;
+                                        background: #c10000;
+                                        position: absolute;
+                                    }
+                                    &:after {
+                                        content: "";
+                                        width: 14px;
+                                        height: 10px;
+                                        top: 50%;
+                                        transform: translateY(-50%);
+                                        right: 20px;
+                                        background-size: cover;
+                                        background: url(../images/arrow-submit.png) no-repeat;
+                                        position: absolute;
+                                        transition: all ease-in-out 0.4s;
+                                    }
+                                    &:hover:after {
+                                        right: 10px;
+                                        transition: all ease-in-out 0.4s;
+                                    }
+                                }
+                            }
+                        }
+                        .wrap-form-billing {
+                            padding: 0 100px;
+                            h4 {
+                                font-size: 17px;
+                                font-family: "Nexa Bold";
+                                color: rgb(28, 28, 28);
+                                text-transform: uppercase;
+                                line-height: 2.529;
+                            }
+                            .same-address {
+                                display: flex;
+                                align-items: center;
+                                p {
+                                    margin-left: 10px;
+                                    font-size: 16px;
+                                    font-family: "Lato";
+                                    color: #1c1c1c;
+                                    line-height: 2.063;
+                                    margin-bottom: 0;
+                                }
+                            }
+                            .wrap-billing {
+                                margin-top: 30px;
+                                display: flex;
+                                justify-content: space-between;
+                                p {
+                                    font-size: 16px;
+                                    font-family: "Lato";
+                                    color: #1c1c1c;
+                                    line-height: 2.063;
+                                    margin-bottom: 0;
+                                }
+                                .billing-left,
+                                .billing-right {
+                                    width: 48%;
+                                }
+                                input[type="text"],
+                                input[type="tel"],
+                                select {
+                                    width: 100%;
+                                    border: 1px solid #cccccc;
+                                    outline: none;
+                                    padding: 10px;
+                                    font-size: 17px;
+                                    font-family: "Nexa Light";
+                                    color: #202020;
+                                    line-height: 1.5;
+                                }
+                                .billing-right {
+                                    .wrap-address-billing {
+                                        display: flex;
+                                        justify-content: space-between;
+                                        .state-billing,
+                                        .city-billing {
+                                            width: 48%;
+                                        }
+                                        select {
+                                            width: 100%;
+                                            border: 1px solid #cccccc;
+                                            outline: none;
+                                            padding: 11px 10px;
+                                            font-size: 17px;
+                                            font-family: "Nexa Light";
+                                            color: #202020;
+                                            line-height: 1.5;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .wrap-pay-method {
+                            h4 {
+                                font-size: 17px;
+                                font-family: "Nexa Bold";
+                                color: rgb(28, 28, 28);
+                                text-transform: uppercase;
+                                line-height: 2.529;
+                            }
+                            .sub-method {
+                                p {
+                                    font-size: 16px;
+                                    font-family: "Lato";
+                                    color: rgb(28, 28, 28);
+                                    line-height: 1.313;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

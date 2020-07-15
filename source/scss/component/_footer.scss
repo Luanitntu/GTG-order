@@ -1,0 +1,75 @@
+#footer {
+    background-color: #eef2f5;
+    padding-top: 50px;
+    .footer-f {
+        .list-contact {
+            ul {
+                padding-left: 0;
+                display: flex;
+                flex-direction: row;
+                list-style: none;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 25px;
+                margin-top: 0;
+                flex-wrap: wrap;
+                li {
+                    font-size: 26px;
+                    color: #000000;
+                    padding: 0 16px;
+                    font-family: "Nexa Bold";
+                    position: relative;
+                    a {
+                        font-size: 26px;
+                        font-family: "Nexa Bold";
+                        color: #1b1b1b;
+                        line-height: 1.622;
+                        text-align: center;
+                        text-decoration: none;
+                    }
+                    &:before {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        left: -4px;
+                        background-image: url(../images/circle-dots.png);
+                        background-size: 100% 100%;
+                        background-repeat: no-repeat;
+                        width: 7px;
+                        height: 7px;
+                    }
+                    &:nth-child(1):before {
+                        width: 0;
+                        height: 0;
+                    }
+                }
+            }
+        }
+        .social-f {
+            ul {
+                padding-left: 0;
+                display: flex;
+                flex-direction: row;
+                list-style: none;
+                justify-content: center;
+                align-items: center;
+                margin-bottom: 45px;
+                margin-top: 0;
+                li {
+                    width: 68px;
+                    height: 68px;
+                    position: relative;
+                    border: 2px solid #1b1b1b;
+                    margin: 0 10px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    transition: background-color 0.3s ease-in-out;
+                    -webkit-transition: background-color 0.3s ease-in-out;
+                    -moz-transition: background-color 0.3s ease-in-out;
+                }
+            }
+        }
+    }
+}
