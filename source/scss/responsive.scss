@@ -504,6 +504,12 @@
     #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content ul li {
         width: 33%;
     }
+    #page-checkout .wrap-checkout .wrap-checkout-step {
+        padding: 20px;
+    }
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .same-address p {
+        line-height: 1.5;
+    }
 }
 
 @media only screen and (max-width: 320px) {
@@ -516,5 +522,14 @@
     }
     #page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-2 {
         width: 100%;
+    }
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-2,
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-3 {
+        width: 100%;
+    }
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-2,
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-3,
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.pay-card {
+        font-size: 18px;
     }
 }
