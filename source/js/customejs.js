@@ -27,16 +27,16 @@ function click_tab() {
 
     jQuery('.next-step li').click(function() {
         var comment = $.trim($("#myTextArea").val());
-        var file = document.getElementById("uploadfile").files.length;
-        if (file == 0) {
-            console.log("no files selected");
-        } else {
-            jQuery('#page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content ul li.step-2').addClass('active');
-            jQuery('.tab-pane.step-2').addClass('active');
-            jQuery('.tab-pane.step-2').addClass('show');
-            jQuery('#page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content ul li.step-1').removeClass('active');
-            jQuery('.tab-pane.step-1').removeClass('active');
-        }
+        // var file = document.getElementById("uploadfile").value;
+        // if (file == 0) {
+        //     console.log("no files selected");
+        // } else {
+        //     jQuery('#page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content ul li.step-2').addClass('active');
+        //     jQuery('.tab-pane.step-2').addClass('active');
+        //     jQuery('.tab-pane.step-2').addClass('show');
+        //     jQuery('#page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content ul li.step-1').removeClass('active');
+        //     jQuery('.tab-pane.step-1').removeClass('active');
+        // }
         if (comment != "") {
             jQuery('#page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content ul li.step-2').addClass('active');
             jQuery('.tab-pane.step-2').addClass('active');
