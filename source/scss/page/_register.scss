@@ -34,8 +34,8 @@
                 input[type="text"],
                 input[type="email"],
                 input[type="tel"],
+                input[type="password"],
                 select {
-                    width: 100%;
                     width: 100%;
                     border: 1px solid #cccccc;
                     outline: none;
@@ -55,6 +55,9 @@
                 .zipcode__register,
                 .phone__register {
                     margin-bottom: 15px;
+                    label.error {
+                        color: #c10000;
+                    }
                 }
                 .password__register {
                     display: flex;
@@ -62,6 +65,14 @@
                     .type__pass,
                     .re__pass {
                         width: 47.5%;
+                        position: relative;
+                        li.show-pass {
+                            position: absolute;
+                            right: 5px;
+                            top: 37px;
+                            list-style: none;
+                            cursor: pointer;
+                        }
                     }
                 }
                 .country__register {

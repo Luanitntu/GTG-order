@@ -60,6 +60,11 @@
     #page-checkout .wrap-checkout .wrap-checkout-step {
         padding: 50px 140px;
     }
+    /*============Page Register=========*/
+    #page-register .wrap-register .wrap-content__register {
+        background: #fff;
+        padding: 70px 15%;
+    }
 }
 
 @media only screen and (max-width: 1440px) {}
@@ -304,6 +309,17 @@
     #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content ul {
         margin-bottom: 10px;
     }
+    /*==========Page Register=============*/
+    #page-register .wrap-register .wrap-content__register .wrap-register__form .password__register {
+        flex-wrap: wrap;
+    }
+    #page-register .wrap-register .wrap-content__register .wrap-register__form .password__register .type__pass {
+        margin-bottom: 15px;
+    }
+    #page-register .wrap-register .wrap-content__register .wrap-register__form .password__register .type__pass,
+    #page-register .wrap-register .wrap-content__register .wrap-register__form .password__register .re__pass {
+        width: 100%;
+    }
 }
 
 @media only screen and (max-width: 900px) {}
@@ -368,6 +384,10 @@
     }
     #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.pay-card {
         width: 100%;
+    }
+    /*==============Page Register==============*/
+    #page-register .wrap-register .wrap-content__register {
+        padding: 30px;
     }
 }
 
@@ -463,6 +483,20 @@
     /*=========Page Checkout==============*/
     #page-checkout .wrap-checkout .wrap-checkout-step {
         padding: 40px 20px;
+    }
+    /*=========Page Register===========*/
+    #page-register .wrap-register .wrap-content__register .wrap-register__form .country__register {
+        flex-wrap: wrap;
+    }
+    #page-register .wrap-register .wrap-content__register .wrap-register__form .country__register .state {
+        margin-bottom: 15px;
+    }
+    #page-register .wrap-register .wrap-content__register .wrap-register__form .country__register .state,
+    #page-register .wrap-register .wrap-content__register .wrap-register__form .country__register .city {
+        width: 100%;
+    }
+    #page-register .wrap-register .wrap-content__register .title-register p {
+        line-height: 1.5;
     }
 }
 

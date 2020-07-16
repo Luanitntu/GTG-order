@@ -386,8 +386,8 @@
 #page-register .wrap-register .wrap-content__register .wrap-register__form input[type="text"],
     #page-register .wrap-register .wrap-content__register .wrap-register__form input[type="email"],
     #page-register .wrap-register .wrap-content__register .wrap-register__form input[type="tel"],
+    #page-register .wrap-register .wrap-content__register .wrap-register__form input[type="password"],
     #page-register .wrap-register .wrap-content__register .wrap-register__form select {
-    width: 100%;
     width: 100%;
     border: 1px solid #cccccc;
     outline: none;
@@ -410,6 +410,18 @@
     margin-bottom: 15px;
 }
 
+#page-register .wrap-register .wrap-content__register .wrap-register__form .email__register label.error,
+      #page-register .wrap-register .wrap-content__register .wrap-register__form .password__register label.error,
+      #page-register .wrap-register .wrap-content__register .wrap-register__form .first__register label.error,
+      #page-register .wrap-register .wrap-content__register .wrap-register__form .last__register label.error,
+      #page-register .wrap-register .wrap-content__register .wrap-register__form .business__register label.error,
+      #page-register .wrap-register .wrap-content__register .wrap-register__form .address__register label.error,
+      #page-register .wrap-register .wrap-content__register .wrap-register__form .country__register label.error,
+      #page-register .wrap-register .wrap-content__register .wrap-register__form .zipcode__register label.error,
+      #page-register .wrap-register .wrap-content__register .wrap-register__form .phone__register label.error {
+    color: #c10000;
+}
+
 #page-register .wrap-register .wrap-content__register .wrap-register__form .password__register {
     display: flex;
     justify-content: space-between;
@@ -418,6 +430,16 @@
 #page-register .wrap-register .wrap-content__register .wrap-register__form .password__register .type__pass,
       #page-register .wrap-register .wrap-content__register .wrap-register__form .password__register .re__pass {
     width: 47.5%;
+    position: relative;
+}
+
+#page-register .wrap-register .wrap-content__register .wrap-register__form .password__register .type__pass li.show-pass,
+        #page-register .wrap-register .wrap-content__register .wrap-register__form .password__register .re__pass li.show-pass {
+    position: absolute;
+    right: 5px;
+    top: 37px;
+    list-style: none;
+    cursor: pointer;
 }
 
 #page-register .wrap-register .wrap-content__register .wrap-register__form .country__register {
@@ -969,6 +991,8 @@
 
 #page-detail-option .wrap-detail-option {
     position: relative;
+    /*================Product==================*/
+    /*==================================*/
 }
 
 #page-detail-option .wrap-detail-option .back {
@@ -1046,8 +1070,51 @@
     margin-top: 40px;
 }
 
-#page-detail-option .wrap-detail-option .wrap-product__template .template-item a {
+#page-detail-option .wrap-detail-option .wrap-product__template .template-item .img-template {
+    position: relative;
+    overflow: hidden;
+}
+
+#page-detail-option .wrap-detail-option .wrap-product__template .template-item .img-template:hover .add-to-cart {
+    display: block;
+    height: 30%;
+    transition: height 0.25s ease-in;
+}
+
+#page-detail-option .wrap-detail-option .wrap-product__template .template-item .img-template a {
+    position: relative;
     display: inline-block;
+}
+
+#page-detail-option .wrap-detail-option .wrap-product__template .template-item .img-template .add-to-cart {
+    display: block;
+    position: absolute;
+    bottom: -3%;
+    left: 0;
+    background: rgba(115, 191, 223, 0.8);
+    right: 0;
+    height: 0;
+    transition: height 0.15s ease-out;
+}
+
+#page-detail-option .wrap-detail-option .wrap-product__template .template-item .img-template .add-to-cart a {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: inline-block;
+    font-size: 26px;
+    font-family: "Nexa Bold";
+    color: #fff;
+    text-transform: uppercase;
+    line-height: 1.2;
+    text-align: left;
+    margin-bottom: 0;
+    text-decoration: none;
+}
+
+#page-detail-option .wrap-detail-option .wrap-product__template .template-item .img-template .add-to-cart a:hover {
+    color: #c10000;
 }
 
 #page-detail-option .wrap-detail-option .wrap-detail-option-step {

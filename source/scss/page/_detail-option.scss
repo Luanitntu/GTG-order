@@ -57,6 +57,7 @@
                 }
             }
         }
+        /*================Product==================*/
         .wrap-product__template {
             background: #fff;
             padding: 70px 60px;
@@ -65,11 +66,50 @@
             justify-content: space-between;
             .template-item {
                 margin-top: 40px;
-                a {
-                    display: inline-block;
+                .img-template {
+                    position: relative;
+                    overflow: hidden;
+                    &:hover .add-to-cart {
+                        display: block;
+                        height: 30%;
+                        transition: height 0.25s ease-in;
+                    }
+                    a {
+                        position: relative;
+                        display: inline-block;
+                    }
+                    .add-to-cart {
+                        display: block;
+                        position: absolute;
+                        bottom: -3%;
+                        left: 0;
+                        background: rgba(115, 191, 223, 0.8);
+                        right: 0;
+                        height: 0;
+                        transition: height 0.15s ease-out;
+                        a {
+                            position: relative;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            display: inline-block;
+                            font-size: 26px;
+                            font-family: "Nexa Bold";
+                            color: #fff;
+                            text-transform: uppercase;
+                            line-height: 1.2;
+                            text-align: left;
+                            margin-bottom: 0;
+                            text-decoration: none;
+                            &:hover {
+                                color: #c10000;
+                            }
+                        }
+                    }
                 }
             }
         }
+        /*==================================*/
         .wrap-detail-option-step {
             background: #fff;
             padding: 70px 357px;

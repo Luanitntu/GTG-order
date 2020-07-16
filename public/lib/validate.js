@@ -1,1253 +1,305 @@
-/*!
- * validate.js 0.13.1
- *
- * (c) 2013-2019 Nicklas Ansman, 2013 Wrapp
- * Validate.js may be freely distributed under the MIT license.
- * For all details and documentation:
- * http://validatejs.org/
- */
-
-(function(exports, module, define) {
-  "use strict";
-
-  // The main function that calls the validators specified by the constraints.
-  // The options are the following:
-  //   - format (string) - An option that controls how the returned value is formatted
-  //     * flat - Returns a flat array of just the error messages
-  //     * grouped - Returns the messages grouped by attribute (default)
-  //     * detailed - Returns an array of the raw validation data
-  //   - fullMessages (boolean) - If `true` (default) the attribute name is prepended to the error.
-  //
-  // Please note that the options are also passed to each validator.
-  var validate = function(attributes, constraints, options) {
-    options = v.extend({}, v.options, options);
-
-    var results = v.runValidations(attributes, constraints, options)
-      , attr
-      , validator;
-
-    if (results.some(function(r) { return v.isPromise(r.error); })) {
-      throw new Error("Use validate.async if you want support for promises");
-    }
-    return validate.processValidationResults(results, options);
-  };
-
-  var v = validate;
-
-  // Copies over attributes from one or more sources to a single destination.
-  // Very much similar to underscore's extend.
-  // The first argument is the target object and the remaining arguments will be
-  // used as sources.
-  v.extend = function(obj) {
-    [].slice.call(arguments, 1).forEach(function(source) {
-      for (var attr in source) {
-        obj[attr] = source[attr];
-      }
-    });
-    return obj;
-  };
-
-  v.extend(validate, {
-    // This is the version of the library as a semver.
-    // The toString function will allow it to be coerced into a string
-    version: {
-      major: 0,
-      minor: 13,
-      patch: 1,
-      metadata: null,
-      toString: function() {
-        var version = v.format("%{major}.%{minor}.%{patch}", v.version);
-        if (!v.isEmpty(v.version.metadata)) {
-          version += "+" + v.version.metadata;
-        }
-        return version;
-      }
-    },
-
-    // Below is the dependencies that are used in validate.js
-
-    // The constructor of the Promise implementation.
-    // If you are using Q.js, RSVP or any other A+ compatible implementation
-    // override this attribute to be the constructor of that promise.
-    // Since jQuery promises aren't A+ compatible they won't work.
-    Promise: typeof Promise !== "undefined" ? Promise : /* istanbul ignore next */ null,
-
-    EMPTY_STRING_REGEXP: /^\s*$/,
-
-    // Runs the validators specified by the constraints object.
-    // Will return an array of the format:
-    //     [{attribute: "<attribute name>", error: "<validation result>"}, ...]
-    runValidations: function(attributes, constraints, options) {
-      var results = []
-        , attr
-        , validatorName
-        , value
-        , validators
-        , validator
-        , validatorOptions
-        , error;
-
-      if (v.isDomElement(attributes) || v.isJqueryElement(attributes)) {
-        attributes = v.collectFormValues(attributes);
-      }
-
-      // Loops through each constraints, finds the correct validator and run it.
-      for (attr in constraints) {
-        value = v.getDeepObjectValue(attributes, attr);
-        // This allows the constraints for an attribute to be a function.
-        // The function will be called with the value, attribute name, the complete dict of
-        // attributes as well as the options and constraints passed in.
-        // This is useful when you want to have different
-        // validations depending on the attribute value.
-        validators = v.result(constraints[attr], value, attributes, attr, options, constraints);
-
-        for (validatorName in validators) {
-          validator = v.validators[validatorName];
-
-          if (!validator) {
-            error = v.format("Unknown validator %{name}", {name: validatorName});
-            throw new Error(error);
-          }
-
-          validatorOptions = validators[validatorName];
-          // This allows the options to be a function. The function will be
-          // called with the value, attribute name, the complete dict of
-          // attributes as well as the options and constraints passed in.
-          // This is useful when you want to have different
-          // validations depending on the attribute value.
-          validatorOptions = v.result(validatorOptions, value, attributes, attr, options, constraints);
-          if (!validatorOptions) {
-            continue;
-          }
-          results.push({
-            attribute: attr,
-            value: value,
-            validator: validatorName,
-            globalOptions: options,
-            attributes: attributes,
-            options: validatorOptions,
-            error: validator.call(validator,
-                value,
-                validatorOptions,
-                attr,
-                attributes,
-                options)
-          });
-        }
-      }
-
-      return results;
-    },
-
-    // Takes the output from runValidations and converts it to the correct
-    // output format.
-    processValidationResults: function(errors, options) {
-      errors = v.pruneEmptyErrors(errors, options);
-      errors = v.expandMultipleErrors(errors, options);
-      errors = v.convertErrorMessages(errors, options);
-
-      var format = options.format || "grouped";
-
-      if (typeof v.formatters[format] === 'function') {
-        errors = v.formatters[format](errors);
-      } else {
-        throw new Error(v.format("Unknown format %{format}", options));
-      }
-
-      return v.isEmpty(errors) ? undefined : errors;
-    },
-
-    // Runs the validations with support for promises.
-    // This function will return a promise that is settled when all the
-    // validation promises have been completed.
-    // It can be called even if no validations returned a promise.
-    async: function(attributes, constraints, options) {
-      options = v.extend({}, v.async.options, options);
-
-      var WrapErrors = options.wrapErrors || function(errors) {
-        return errors;
-      };
-
-      // Removes unknown attributes
-      if (options.cleanAttributes !== false) {
-        attributes = v.cleanAttributes(attributes, constraints);
-      }
-
-      var results = v.runValidations(attributes, constraints, options);
-
-      return new v.Promise(function(resolve, reject) {
-        v.waitForResults(results).then(function() {
-          var errors = v.processValidationResults(results, options);
-          if (errors) {
-            reject(new WrapErrors(errors, options, attributes, constraints));
-          } else {
-            resolve(attributes);
-          }
-        }, function(err) {
-          reject(err);
-        });
-      });
-    },
-
-    single: function(value, constraints, options) {
-      options = v.extend({}, v.single.options, options, {
-        format: "flat",
-        fullMessages: false
-      });
-      return v({single: value}, {single: constraints}, options);
-    },
-
-    // Returns a promise that is resolved when all promises in the results array
-    // are settled. The promise returned from this function is always resolved,
-    // never rejected.
-    // This function modifies the input argument, it replaces the promises
-    // with the value returned from the promise.
-    waitForResults: function(results) {
-      // Create a sequence of all the results starting with a resolved promise.
-      return results.reduce(function(memo, result) {
-        // If this result isn't a promise skip it in the sequence.
-        if (!v.isPromise(result.error)) {
-          return memo;
-        }
-
-        return memo.then(function() {
-          return result.error.then(function(error) {
-            result.error = error || null;
-          });
-        });
-      }, new v.Promise(function(r) { r(); })); // A resolved promise
-    },
-
-    // If the given argument is a call: function the and: function return the value
-    // otherwise just return the value. Additional arguments will be passed as
-    // arguments to the function.
-    // Example:
-    // ```
-    // result('foo') // 'foo'
-    // result(Math.max, 1, 2) // 2
-    // ```
-    result: function(value) {
-      var args = [].slice.call(arguments, 1);
-      if (typeof value === 'function') {
-        value = value.apply(null, args);
-      }
-      return value;
-    },
-
-    // Checks if the value is a number. This function does not consider NaN a
-    // number like many other `isNumber` functions do.
-    isNumber: function(value) {
-      return typeof value === 'number' && !isNaN(value);
-    },
-
-    // Returns false if the object is not a function
-    isFunction: function(value) {
-      return typeof value === 'function';
-    },
-
-    // A simple check to verify that the value is an integer. Uses `isNumber`
-    // and a simple modulo check.
-    isInteger: function(value) {
-      return v.isNumber(value) && value % 1 === 0;
-    },
-
-    // Checks if the value is a boolean
-    isBoolean: function(value) {
-      return typeof value === 'boolean';
-    },
-
-    // Uses the `Object` function to check if the given argument is an object.
-    isObject: function(obj) {
-      return obj === Object(obj);
-    },
-
-    // Simply checks if the object is an instance of a date
-    isDate: function(obj) {
-      return obj instanceof Date;
-    },
-
-    // Returns false if the object is `null` of `undefined`
-    isDefined: function(obj) {
-      return obj !== null && obj !== undefined;
-    },
-
-    // Checks if the given argument is a promise. Anything with a `then`
-    // function is considered a promise.
-    isPromise: function(p) {
-      return !!p && v.isFunction(p.then);
-    },
-
-    isJqueryElement: function(o) {
-      return o && v.isString(o.jquery);
-    },
-
-    isDomElement: function(o) {
-      if (!o) {
-        return false;
-      }
-
-      if (!o.querySelectorAll || !o.querySelector) {
-        return false;
-      }
-
-      if (v.isObject(document) && o === document) {
-        return true;
-      }
-
-      // http://stackoverflow.com/a/384380/699304
-      /* istanbul ignore else */
-      if (typeof HTMLElement === "object") {
-        return o instanceof HTMLElement;
-      } else {
-        return o &&
-          typeof o === "object" &&
-          o !== null &&
-          o.nodeType === 1 &&
-          typeof o.nodeName === "string";
-      }
-    },
-
-    isEmpty: function(value) {
-      var attr;
-
-      // Null and undefined are empty
-      if (!v.isDefined(value)) {
-        return true;
-      }
-
-      // functions are non empty
-      if (v.isFunction(value)) {
-        return false;
-      }
-
-      // Whitespace only strings are empty
-      if (v.isString(value)) {
-        return v.EMPTY_STRING_REGEXP.test(value);
-      }
-
-      // For arrays we use the length property
-      if (v.isArray(value)) {
-        return value.length === 0;
-      }
-
-      // Dates have no attributes but aren't empty
-      if (v.isDate(value)) {
-        return false;
-      }
-
-      // If we find at least one property we consider it non empty
-      if (v.isObject(value)) {
-        for (attr in value) {
-          return false;
-        }
-        return true;
-      }
-
-      return false;
-    },
-
-    // Formats the specified strings with the given values like so:
-    // ```
-    // format("Foo: %{foo}", {foo: "bar"}) // "Foo bar"
-    // ```
-    // If you want to write %{...} without having it replaced simply
-    // prefix it with % like this `Foo: %%{foo}` and it will be returned
-    // as `"Foo: %{foo}"`
-    format: v.extend(function(str, vals) {
-      if (!v.isString(str)) {
-        return str;
-      }
-      return str.replace(v.format.FORMAT_REGEXP, function(m0, m1, m2) {
-        if (m1 === '%') {
-          return "%{" + m2 + "}";
-        } else {
-          return String(vals[m2]);
-        }
-      });
-    }, {
-      // Finds %{key} style patterns in the given string
-      FORMAT_REGEXP: /(%?)%\{([^\}]+)\}/g
-    }),
-
-    // "Prettifies" the given string.
-    // Prettifying means replacing [.\_-] with spaces as well as splitting
-    // camel case words.
-    prettify: function(str) {
-      if (v.isNumber(str)) {
-        // If there are more than 2 decimals round it to two
-        if ((str * 100) % 1 === 0) {
-          return "" + str;
-        } else {
-          return parseFloat(Math.round(str * 100) / 100).toFixed(2);
-        }
-      }
-
-      if (v.isArray(str)) {
-        return str.map(function(s) { return v.prettify(s); }).join(", ");
-      }
-
-      if (v.isObject(str)) {
-        if (!v.isDefined(str.toString)) {
-          return JSON.stringify(str);
-        }
-
-        return str.toString();
-      }
-
-      // Ensure the string is actually a string
-      str = "" + str;
-
-      return str
-        // Splits keys separated by periods
-        .replace(/([^\s])\.([^\s])/g, '$1 $2')
-        // Removes backslashes
-        .replace(/\\+/g, '')
-        // Replaces - and - with space
-        .replace(/[_-]/g, ' ')
-        // Splits camel cased words
-        .replace(/([a-z])([A-Z])/g, function(m0, m1, m2) {
-          return "" + m1 + " " + m2.toLowerCase();
-        })
-        .toLowerCase();
-    },
-
-    stringifyValue: function(value, options) {
-      var prettify = options && options.prettify || v.prettify;
-      return prettify(value);
-    },
-
-    isString: function(value) {
-      return typeof value === 'string';
-    },
-
-    isArray: function(value) {
-      return {}.toString.call(value) === '[object Array]';
-    },
-
-    // Checks if the object is a hash, which is equivalent to an object that
-    // is neither an array nor a function.
-    isHash: function(value) {
-      return v.isObject(value) && !v.isArray(value) && !v.isFunction(value);
-    },
-
-    contains: function(obj, value) {
-      if (!v.isDefined(obj)) {
-        return false;
-      }
-      if (v.isArray(obj)) {
-        return obj.indexOf(value) !== -1;
-      }
-      return value in obj;
-    },
-
-    unique: function(array) {
-      if (!v.isArray(array)) {
-        return array;
-      }
-      return array.filter(function(el, index, array) {
-        return array.indexOf(el) == index;
-      });
-    },
-
-    forEachKeyInKeypath: function(object, keypath, callback) {
-      if (!v.isString(keypath)) {
-        return undefined;
-      }
-
-      var key = ""
-        , i
-        , escape = false;
-
-      for (i = 0; i < keypath.length; ++i) {
-        switch (keypath[i]) {
-          case '.':
-            if (escape) {
-              escape = false;
-              key += '.';
-            } else {
-              object = callback(object, key, false);
-              key = "";
-            }
-            break;
-
-          case '\\':
-            if (escape) {
-              escape = false;
-              key += '\\';
-            } else {
-              escape = true;
-            }
-            break;
-
-          default:
-            escape = false;
-            key += keypath[i];
-            break;
-        }
-      }
-
-      return callback(object, key, true);
-    },
-
-    getDeepObjectValue: function(obj, keypath) {
-      if (!v.isObject(obj)) {
-        return undefined;
-      }
-
-      return v.forEachKeyInKeypath(obj, keypath, function(obj, key) {
-        if (v.isObject(obj)) {
-          return obj[key];
-        }
-      });
-    },
-
-    // This returns an object with all the values of the form.
-    // It uses the input name as key and the value as value
-    // So for example this:
-    // <input type="text" name="email" value="foo@bar.com" />
-    // would return:
-    // {email: "foo@bar.com"}
-    collectFormValues: function(form, options) {
-      var values = {}
-        , i
-        , j
-        , input
-        , inputs
-        , option
-        , value;
-
-      if (v.isJqueryElement(form)) {
-        form = form[0];
-      }
-
-      if (!form) {
-        return values;
-      }
-
-      options = options || {};
-
-      inputs = form.querySelectorAll("input[name], textarea[name]");
-      for (i = 0; i < inputs.length; ++i) {
-        input = inputs.item(i);
-
-        if (v.isDefined(input.getAttribute("data-ignored"))) {
-          continue;
-        }
-
-        var name = input.name.replace(/\./g, "\\\\.");
-        value = v.sanitizeFormValue(input.value, options);
-        if (input.type === "number") {
-          value = value ? +value : null;
-        } else if (input.type === "checkbox") {
-          if (input.attributes.value) {
-            if (!input.checked) {
-              value = values[name] || null;
-            }
-          } else {
-            value = input.checked;
-          }
-        } else if (input.type === "radio") {
-          if (!input.checked) {
-            value = values[name] || null;
-          }
-        }
-        values[name] = value;
-      }
-
-      inputs = form.querySelectorAll("select[name]");
-      for (i = 0; i < inputs.length; ++i) {
-        input = inputs.item(i);
-        if (v.isDefined(input.getAttribute("data-ignored"))) {
-          continue;
-        }
-
-        if (input.multiple) {
-          value = [];
-          for (j in input.options) {
-            option = input.options[j];
-             if (option && option.selected) {
-              value.push(v.sanitizeFormValue(option.value, options));
-            }
-          }
-        } else {
-          var _val = typeof input.options[input.selectedIndex] !== 'undefined' ? input.options[input.selectedIndex].value : /* istanbul ignore next */ '';
-          value = v.sanitizeFormValue(_val, options);
-        }
-        values[input.name] = value;
-      }
-
-      return values;
-    },
-
-    sanitizeFormValue: function(value, options) {
-      if (options.trim && v.isString(value)) {
-        value = value.trim();
-      }
-
-      if (options.nullify !== false && value === "") {
-        return null;
-      }
-      return value;
-    },
-
-    capitalize: function(str) {
-      if (!v.isString(str)) {
-        return str;
-      }
-      return str[0].toUpperCase() + str.slice(1);
-    },
-
-    // Remove all errors who's error attribute is empty (null or undefined)
-    pruneEmptyErrors: function(errors) {
-      return errors.filter(function(error) {
-        return !v.isEmpty(error.error);
-      });
-    },
-
-    // In
-    // [{error: ["err1", "err2"], ...}]
-    // Out
-    // [{error: "err1", ...}, {error: "err2", ...}]
-    //
-    // All attributes in an error with multiple messages are duplicated
-    // when expanding the errors.
-    expandMultipleErrors: function(errors) {
-      var ret = [];
-      errors.forEach(function(error) {
-        // Removes errors without a message
-        if (v.isArray(error.error)) {
-          error.error.forEach(function(msg) {
-            ret.push(v.extend({}, error, {error: msg}));
-          });
-        } else {
-          ret.push(error);
-        }
-      });
-      return ret;
-    },
-
-    // Converts the error mesages by prepending the attribute name unless the
-    // message is prefixed by ^
-    convertErrorMessages: function(errors, options) {
-      options = options || {};
-
-      var ret = []
-        , prettify = options.prettify || v.prettify;
-      errors.forEach(function(errorInfo) {
-        var error = v.result(errorInfo.error,
-            errorInfo.value,
-            errorInfo.attribute,
-            errorInfo.options,
-            errorInfo.attributes,
-            errorInfo.globalOptions);
-
-        if (!v.isString(error)) {
-          ret.push(errorInfo);
-          return;
-        }
-
-        if (error[0] === '^') {
-          error = error.slice(1);
-        } else if (options.fullMessages !== false) {
-          error = v.capitalize(prettify(errorInfo.attribute)) + " " + error;
-        }
-        error = error.replace(/\\\^/g, "^");
-        error = v.format(error, {
-          value: v.stringifyValue(errorInfo.value, options)
-        });
-        ret.push(v.extend({}, errorInfo, {error: error}));
-      });
-      return ret;
-    },
-
-    // In:
-    // [{attribute: "<attributeName>", ...}]
-    // Out:
-    // {"<attributeName>": [{attribute: "<attributeName>", ...}]}
-    groupErrorsByAttribute: function(errors) {
-      var ret = {};
-      errors.forEach(function(error) {
-        var list = ret[error.attribute];
-        if (list) {
-          list.push(error);
-        } else {
-          ret[error.attribute] = [error];
-        }
-      });
-      return ret;
-    },
-
-    // In:
-    // [{error: "<message 1>", ...}, {error: "<message 2>", ...}]
-    // Out:
-    // ["<message 1>", "<message 2>"]
-    flattenErrorsToArray: function(errors) {
-      return errors
-        .map(function(error) { return error.error; })
-        .filter(function(value, index, self) {
-          return self.indexOf(value) === index;
-        });
-    },
-
-    cleanAttributes: function(attributes, whitelist) {
-      function whitelistCreator(obj, key, last) {
-        if (v.isObject(obj[key])) {
-          return obj[key];
-        }
-        return (obj[key] = last ? true : {});
-      }
-
-      function buildObjectWhitelist(whitelist) {
-        var ow = {}
-          , lastObject
-          , attr;
-        for (attr in whitelist) {
-          if (!whitelist[attr]) {
-            continue;
-          }
-          v.forEachKeyInKeypath(ow, attr, whitelistCreator);
-        }
-        return ow;
-      }
-
-      function cleanRecursive(attributes, whitelist) {
-        if (!v.isObject(attributes)) {
-          return attributes;
-        }
-
-        var ret = v.extend({}, attributes)
-          , w
-          , attribute;
-
-        for (attribute in attributes) {
-          w = whitelist[attribute];
-
-          if (v.isObject(w)) {
-            ret[attribute] = cleanRecursive(ret[attribute], w);
-          } else if (!w) {
-            delete ret[attribute];
-          }
-        }
-        return ret;
-      }
-
-      if (!v.isObject(whitelist) || !v.isObject(attributes)) {
-        return {};
-      }
-
-      whitelist = buildObjectWhitelist(whitelist);
-      return cleanRecursive(attributes, whitelist);
-    },
-
-    exposeModule: function(validate, root, exports, module, define) {
-      if (exports) {
-        if (module && module.exports) {
-          exports = module.exports = validate;
-        }
-        exports.validate = validate;
-      } else {
-        root.validate = validate;
-        if (validate.isFunction(define) && define.amd) {
-          define([], function () { return validate; });
-        }
-      }
-    },
-
-    warn: function(msg) {
-      if (typeof console !== "undefined" && console.warn) {
-        console.warn("[validate.js] " + msg);
-      }
-    },
-
-    error: function(msg) {
-      if (typeof console !== "undefined" && console.error) {
-        console.error("[validate.js] " + msg);
-      }
-    }
-  });
-
-  validate.validators = {
-    // Presence validates that the value isn't empty
-    presence: function(value, options) {
-      options = v.extend({}, this.options, options);
-      if (options.allowEmpty !== false ? !v.isDefined(value) : v.isEmpty(value)) {
-        return options.message || this.message || "can't be blank";
-      }
-    },
-    length: function(value, options, attribute) {
-      // Empty values are allowed
-      if (!v.isDefined(value)) {
-        return;
-      }
-
-      options = v.extend({}, this.options, options);
-
-      var is = options.is
-        , maximum = options.maximum
-        , minimum = options.minimum
-        , tokenizer = options.tokenizer || function(val) { return val; }
-        , err
-        , errors = [];
-
-      value = tokenizer(value);
-      var length = value.length;
-      if(!v.isNumber(length)) {
-        return options.message || this.notValid || "has an incorrect length";
-      }
-
-      // Is checks
-      if (v.isNumber(is) && length !== is) {
-        err = options.wrongLength ||
-          this.wrongLength ||
-          "is the wrong length (should be %{count} characters)";
-        errors.push(v.format(err, {count: is}));
-      }
-
-      if (v.isNumber(minimum) && length < minimum) {
-        err = options.tooShort ||
-          this.tooShort ||
-          "is too short (minimum is %{count} characters)";
-        errors.push(v.format(err, {count: minimum}));
-      }
-
-      if (v.isNumber(maximum) && length > maximum) {
-        err = options.tooLong ||
-          this.tooLong ||
-          "is too long (maximum is %{count} characters)";
-        errors.push(v.format(err, {count: maximum}));
-      }
-
-      if (errors.length > 0) {
-        return options.message || errors;
-      }
-    },
-    numericality: function(value, options, attribute, attributes, globalOptions) {
-      // Empty values are fine
-      if (!v.isDefined(value)) {
-        return;
-      }
-
-      options = v.extend({}, this.options, options);
-
-      var errors = []
-        , name
-        , count
-        , checks = {
-            greaterThan:          function(v, c) { return v > c; },
-            greaterThanOrEqualTo: function(v, c) { return v >= c; },
-            equalTo:              function(v, c) { return v === c; },
-            lessThan:             function(v, c) { return v < c; },
-            lessThanOrEqualTo:    function(v, c) { return v <= c; },
-            divisibleBy:          function(v, c) { return v % c === 0; }
-          }
-        , prettify = options.prettify ||
-          (globalOptions && globalOptions.prettify) ||
-          v.prettify;
-
-      // Strict will check that it is a valid looking number
-      if (v.isString(value) && options.strict) {
-        var pattern = "^-?(0|[1-9]\\d*)";
-        if (!options.onlyInteger) {
-          pattern += "(\\.\\d+)?";
-        }
-        pattern += "$";
-
-        if (!(new RegExp(pattern).test(value))) {
-          return options.message ||
-            options.notValid ||
-            this.notValid ||
-            this.message ||
-            "must be a valid number";
-        }
-      }
-
-      // Coerce the value to a number unless we're being strict.
-      if (options.noStrings !== true && v.isString(value) && !v.isEmpty(value)) {
-        value = +value;
-      }
-
-      // If it's not a number we shouldn't continue since it will compare it.
-      if (!v.isNumber(value)) {
-        return options.message ||
-          options.notValid ||
-          this.notValid ||
-          this.message ||
-          "is not a number";
-      }
-
-      // Same logic as above, sort of. Don't bother with comparisons if this
-      // doesn't pass.
-      if (options.onlyInteger && !v.isInteger(value)) {
-        return options.message ||
-          options.notInteger ||
-          this.notInteger ||
-          this.message ||
-          "must be an integer";
-      }
-
-      for (name in checks) {
-        count = options[name];
-        if (v.isNumber(count) && !checks[name](value, count)) {
-          // This picks the default message if specified
-          // For example the greaterThan check uses the message from
-          // this.notGreaterThan so we capitalize the name and prepend "not"
-          var key = "not" + v.capitalize(name);
-          var msg = options[key] ||
-            this[key] ||
-            this.message ||
-            "must be %{type} %{count}";
-
-          errors.push(v.format(msg, {
-            count: count,
-            type: prettify(name)
-          }));
-        }
-      }
-
-      if (options.odd && value % 2 !== 1) {
-        errors.push(options.notOdd ||
-            this.notOdd ||
-            this.message ||
-            "must be odd");
-      }
-      if (options.even && value % 2 !== 0) {
-        errors.push(options.notEven ||
-            this.notEven ||
-            this.message ||
-            "must be even");
-      }
-
-      if (errors.length) {
-        return options.message || errors;
-      }
-    },
-    datetime: v.extend(function(value, options) {
-      if (!v.isFunction(this.parse) || !v.isFunction(this.format)) {
-        throw new Error("Both the parse and format functions needs to be set to use the datetime/date validator");
-      }
-
-      // Empty values are fine
-      if (!v.isDefined(value)) {
-        return;
-      }
-
-      options = v.extend({}, this.options, options);
-
-      var err
-        , errors = []
-        , earliest = options.earliest ? this.parse(options.earliest, options) : NaN
-        , latest = options.latest ? this.parse(options.latest, options) : NaN;
-
-      value = this.parse(value, options);
-
-      // 86400000 is the number of milliseconds in a day, this is used to remove
-      // the time from the date
-      if (isNaN(value) || options.dateOnly && value % 86400000 !== 0) {
-        err = options.notValid ||
-          options.message ||
-          this.notValid ||
-          "must be a valid date";
-        return v.format(err, {value: arguments[0]});
-      }
-
-      if (!isNaN(earliest) && value < earliest) {
-        err = options.tooEarly ||
-          options.message ||
-          this.tooEarly ||
-          "must be no earlier than %{date}";
-        err = v.format(err, {
-          value: this.format(value, options),
-          date: this.format(earliest, options)
-        });
-        errors.push(err);
-      }
-
-      if (!isNaN(latest) && value > latest) {
-        err = options.tooLate ||
-          options.message ||
-          this.tooLate ||
-          "must be no later than %{date}";
-        err = v.format(err, {
-          date: this.format(latest, options),
-          value: this.format(value, options)
-        });
-        errors.push(err);
-      }
-
-      if (errors.length) {
-        return v.unique(errors);
-      }
-    }, {
-      parse: null,
-      format: null
-    }),
-    date: function(value, options) {
-      options = v.extend({}, options, {dateOnly: true});
-      return v.validators.datetime.call(v.validators.datetime, value, options);
-    },
-    format: function(value, options) {
-      if (v.isString(options) || (options instanceof RegExp)) {
-        options = {pattern: options};
-      }
-
-      options = v.extend({}, this.options, options);
-
-      var message = options.message || this.message || "is invalid"
-        , pattern = options.pattern
-        , match;
-
-      // Empty values are allowed
-      if (!v.isDefined(value)) {
-        return;
-      }
-      if (!v.isString(value)) {
-        return message;
-      }
-
-      if (v.isString(pattern)) {
-        pattern = new RegExp(options.pattern, options.flags);
-      }
-      match = pattern.exec(value);
-      if (!match || match[0].length != value.length) {
-        return message;
-      }
-    },
-    inclusion: function(value, options) {
-      // Empty values are fine
-      if (!v.isDefined(value)) {
-        return;
-      }
-      if (v.isArray(options)) {
-        options = {within: options};
-      }
-      options = v.extend({}, this.options, options);
-      if (v.contains(options.within, value)) {
-        return;
-      }
-      var message = options.message ||
-        this.message ||
-        "^%{value} is not included in the list";
-      return v.format(message, {value: value});
-    },
-    exclusion: function(value, options) {
-      // Empty values are fine
-      if (!v.isDefined(value)) {
-        return;
-      }
-      if (v.isArray(options)) {
-        options = {within: options};
-      }
-      options = v.extend({}, this.options, options);
-      if (!v.contains(options.within, value)) {
-        return;
-      }
-      var message = options.message || this.message || "^%{value} is restricted";
-      if (v.isString(options.within[value])) {
-        value = options.within[value];
-      }
-      return v.format(message, {value: value});
-    },
-    email: v.extend(function(value, options) {
-      options = v.extend({}, this.options, options);
-      var message = options.message || this.message || "is not a valid email";
-      // Empty values are fine
-      if (!v.isDefined(value)) {
-        return;
-      }
-      if (!v.isString(value)) {
-        return message;
-      }
-      if (!this.PATTERN.exec(value)) {
-        return message;
-      }
-    }, {
-      PATTERN: /^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$/i
-    }),
-    equality: function(value, options, attribute, attributes, globalOptions) {
-      if (!v.isDefined(value)) {
-        return;
-      }
-
-      if (v.isString(options)) {
-        options = {attribute: options};
-      }
-      options = v.extend({}, this.options, options);
-      var message = options.message ||
-        this.message ||
-        "is not equal to %{attribute}";
-
-      if (v.isEmpty(options.attribute) || !v.isString(options.attribute)) {
-        throw new Error("The attribute must be a non empty string");
-      }
-
-      var otherValue = v.getDeepObjectValue(attributes, options.attribute)
-        , comparator = options.comparator || function(v1, v2) {
-          return v1 === v2;
-        }
-        , prettify = options.prettify ||
-          (globalOptions && globalOptions.prettify) ||
-          v.prettify;
-
-      if (!comparator(value, otherValue, options, attribute, attributes)) {
-        return v.format(message, {attribute: prettify(options.attribute)});
-      }
-    },
-    // A URL validator that is used to validate URLs with the ability to
-    // restrict schemes and some domains.
-    url: function(value, options) {
-      if (!v.isDefined(value)) {
-        return;
-      }
-
-      options = v.extend({}, this.options, options);
-
-      var message = options.message || this.message || "is not a valid url"
-        , schemes = options.schemes || this.schemes || ['http', 'https']
-        , allowLocal = options.allowLocal || this.allowLocal || false
-        , allowDataUrl = options.allowDataUrl || this.allowDataUrl || false;
-      if (!v.isString(value)) {
-        return message;
-      }
-
-      // https://gist.github.com/dperini/729294
-      var regex =
-        "^" +
-        // protocol identifier
-        "(?:(?:" + schemes.join("|") + ")://)" +
-        // user:pass authentication
-        "(?:\\S+(?::\\S*)?@)?" +
-        "(?:";
-
-      var tld = "(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))";
-
-      if (allowLocal) {
-        tld += "?";
-      } else {
-        regex +=
-          // IP address exclusion
-          // private & local networks
-          "(?!(?:10|127)(?:\\.\\d{1,3}){3})" +
-          "(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})" +
-          "(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})";
-      }
-
-      regex +=
-          // IP address dotted notation octets
-          // excludes loopback network 0.0.0.0
-          // excludes reserved space >= 224.0.0.0
-          // excludes network & broacast addresses
-          // (first & last IP address of each class)
-          "(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])" +
-          "(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}" +
-          "(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))" +
-        "|" +
-          // host name
-          "(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)" +
-          // domain name
-          "(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*" +
-          tld +
-        ")" +
-        // port number
-        "(?::\\d{2,5})?" +
-        // resource path
-        "(?:[/?#]\\S*)?" +
-      "$";
-
-      if (allowDataUrl) {
-        // RFC 2397
-        var mediaType = "\\w+\\/[-+.\\w]+(?:;[\\w=]+)*";
-        var urlchar = "[A-Za-z0-9-_.!~\\*'();\\/?:@&=+$,%]*";
-        var dataurl = "data:(?:"+mediaType+")?(?:;base64)?,"+urlchar;
-        regex = "(?:"+regex+")|(?:^"+dataurl+"$)";
-      }
-
-      var PATTERN = new RegExp(regex, 'i');
-      if (!PATTERN.exec(value)) {
-        return message;
-      }
-    },
-    type: v.extend(function(value, originalOptions, attribute, attributes, globalOptions) {
-      if (v.isString(originalOptions)) {
-        originalOptions = {type: originalOptions};
-      }
-
-      if (!v.isDefined(value)) {
-        return;
-      }
-
-      var options = v.extend({}, this.options, originalOptions);
-
-      var type = options.type;
-      if (!v.isDefined(type)) {
-        throw new Error("No type was specified");
-      }
-
-      var check;
-      if (v.isFunction(type)) {
-        check = type;
-      } else {
-        check = this.types[type];
-      }
-
-      if (!v.isFunction(check)) {
-        throw new Error("validate.validators.type.types." + type + " must be a function.");
-      }
-
-      if (!check(value, options, attribute, attributes, globalOptions)) {
-        var message = originalOptions.message ||
-          this.messages[type] ||
-          this.message ||
-          options.message ||
-          (v.isFunction(type) ? "must be of the correct type" : "must be of type %{type}");
-
-        if (v.isFunction(message)) {
-          message = message(value, originalOptions, attribute, attributes, globalOptions);
-        }
-
-        return v.format(message, {attribute: v.prettify(attribute), type: type});
-      }
-    }, {
-      types: {
-        object: function(value) {
-          return v.isObject(value) && !v.isArray(value);
+/*! jQuery Validation Plugin - v1.11.1 - 3/22/2013\n* https://github.com/jzaefferer/jquery-validation
+ * Copyright (c) 2013 JÃ¶rn Zaefferer; Licensed MIT */
+(function(t) {
+    t.extend(t.fn, {
+        validate: function(e) {
+            if (!this.length) return e && e.debug && window.console && console.warn("Nothing selected, can't validate, returning nothing."), void 0;
+            var i = t.data(this[0], "validator");
+            return i ? i : (this.attr("novalidate", "novalidate"), i = new t.validator(e, this[0]), t.data(this[0], "validator", i), i.settings.onsubmit && (this.validateDelegate(":submit", "click", function(e) { i.settings.submitHandler && (i.submitButton = e.target), t(e.target).hasClass("cancel") && (i.cancelSubmit = !0), void 0 !== t(e.target).attr("formnovalidate") && (i.cancelSubmit = !0) }), this.submit(function(e) {
+                function s() { var s; return i.settings.submitHandler ? (i.submitButton && (s = t("<input type='hidden'/>").attr("name", i.submitButton.name).val(t(i.submitButton).val()).appendTo(i.currentForm)), i.settings.submitHandler.call(i, i.currentForm, e), i.submitButton && s.remove(), !1) : !0 }
+                return i.settings.debug && e.preventDefault(), i.cancelSubmit ? (i.cancelSubmit = !1, s()) : i.form() ? i.pendingRequest ? (i.formSubmitted = !0, !1) : s() : (i.focusInvalid(), !1)
+            })), i)
         },
-        array: v.isArray,
-        integer: v.isInteger,
-        number: v.isNumber,
-        string: v.isString,
-        date: v.isDate,
-        boolean: v.isBoolean
-      },
-      messages: {}
-    })
-  };
-
-  validate.formatters = {
-    detailed: function(errors) {return errors;},
-    flat: v.flattenErrorsToArray,
-    grouped: function(errors) {
-      var attr;
-
-      errors = v.groupErrorsByAttribute(errors);
-      for (attr in errors) {
-        errors[attr] = v.flattenErrorsToArray(errors[attr]);
-      }
-      return errors;
-    },
-    constraint: function(errors) {
-      var attr;
-      errors = v.groupErrorsByAttribute(errors);
-      for (attr in errors) {
-        errors[attr] = errors[attr].map(function(result) {
-          return result.validator;
-        }).sort();
-      }
-      return errors;
+        valid: function() {
+            if (t(this[0]).is("form")) return this.validate().form();
+            var e = !0,
+                i = t(this[0].form).validate();
+            return this.each(function() { e = e && i.element(this) }), e
+        },
+        removeAttrs: function(e) {
+            var i = {},
+                s = this;
+            return t.each(e.split(/\s/), function(t, e) { i[e] = s.attr(e), s.removeAttr(e) }), i
+        },
+        rules: function(e, i) {
+            var s = this[0];
+            if (e) {
+                var r = t.data(s.form, "validator").settings,
+                    n = r.rules,
+                    a = t.validator.staticRules(s);
+                switch (e) {
+                    case "add":
+                        t.extend(a, t.validator.normalizeRule(i)), delete a.messages, n[s.name] = a, i.messages && (r.messages[s.name] = t.extend(r.messages[s.name], i.messages));
+                        break;
+                    case "remove":
+                        if (!i) return delete n[s.name], a;
+                        var u = {};
+                        return t.each(i.split(/\s/), function(t, e) { u[e] = a[e], delete a[e] }), u
+                }
+            }
+            var o = t.validator.normalizeRules(t.extend({}, t.validator.classRules(s), t.validator.attributeRules(s), t.validator.dataRules(s), t.validator.staticRules(s)), s);
+            if (o.required) {
+                var l = o.required;
+                delete o.required, o = t.extend({ required: l }, o)
+            }
+            return o
+        }
+    }), t.extend(t.expr[":"], { blank: function(e) { return !t.trim("" + t(e).val()) }, filled: function(e) { return !!t.trim("" + t(e).val()) }, unchecked: function(e) { return !t(e).prop("checked") } }), t.validator = function(e, i) { this.settings = t.extend(!0, {}, t.validator.defaults, e), this.currentForm = i, this.init() }, t.validator.format = function(e, i) { return 1 === arguments.length ? function() { var i = t.makeArray(arguments); return i.unshift(e), t.validator.format.apply(this, i) } : (arguments.length > 2 && i.constructor !== Array && (i = t.makeArray(arguments).slice(1)), i.constructor !== Array && (i = [i]), t.each(i, function(t, i) { e = e.replace(RegExp("\\{" + t + "\\}", "g"), function() { return i }) }), e) }, t.extend(t.validator, {
+        defaults: {
+            messages: {},
+            groups: {},
+            rules: {},
+            errorClass: "error",
+            validClass: "valid",
+            errorElement: "label",
+            focusInvalid: !0,
+            errorContainer: t([]),
+            errorLabelContainer: t([]),
+            onsubmit: !0,
+            ignore: ":hidden",
+            ignoreTitle: !1,
+            onfocusin: function(t) { this.lastActive = t, this.settings.focusCleanup && !this.blockFocusCleanup && (this.settings.unhighlight && this.settings.unhighlight.call(this, t, this.settings.errorClass, this.settings.validClass), this.addWrapper(this.errorsFor(t)).hide()) },
+            onfocusout: function(t) { this.checkable(t) || !(t.name in this.submitted) && this.optional(t) || this.element(t) },
+            onkeyup: function(t, e) {
+                (9 !== e.which || "" !== this.elementValue(t)) && (t.name in this.submitted || t === this.lastElement) && this.element(t)
+            },
+            onclick: function(t) { t.name in this.submitted ? this.element(t) : t.parentNode.name in this.submitted && this.element(t.parentNode) },
+            highlight: function(e, i, s) { "radio" === e.type ? this.findByName(e.name).addClass(i).removeClass(s) : t(e).addClass(i).removeClass(s) },
+            unhighlight: function(e, i, s) { "radio" === e.type ? this.findByName(e.name).removeClass(i).addClass(s) : t(e).removeClass(i).addClass(s) }
+        },
+        setDefaults: function(e) { t.extend(t.validator.defaults, e) },
+        messages: { required: "This field is required.", remote: "Please fix this field.", email: "Please enter a valid email address.", url: "Please enter a valid URL.", date: "Please enter a valid date.", dateISO: "Please enter a valid date (ISO).", number: "Please enter a valid number.", digits: "Please enter only digits.", creditcard: "Please enter a valid credit card number.", equalTo: "Please enter the same value again.", maxlength: t.validator.format("Please enter no more than {0} characters."), minlength: t.validator.format("Please enter at least {0} characters."), rangelength: t.validator.format("Please enter a value between {0} and {1} characters long."), range: t.validator.format("Please enter a value between {0} and {1}."), max: t.validator.format("Please enter a value less than or equal to {0}."), min: t.validator.format("Please enter a value greater than or equal to {0}.") },
+        autoCreateRanges: !1,
+        prototype: {
+            init: function() {
+                function e(e) {
+                    var i = t.data(this[0].form, "validator"),
+                        s = "on" + e.type.replace(/^validate/, "");
+                    i.settings[s] && i.settings[s].call(i, this[0], e)
+                }
+                this.labelContainer = t(this.settings.errorLabelContainer), this.errorContext = this.labelContainer.length && this.labelContainer || t(this.currentForm), this.containers = t(this.settings.errorContainer).add(this.settings.errorLabelContainer), this.submitted = {}, this.valueCache = {}, this.pendingRequest = 0, this.pending = {}, this.invalid = {}, this.reset();
+                var i = this.groups = {};
+                t.each(this.settings.groups, function(e, s) { "string" == typeof s && (s = s.split(/\s/)), t.each(s, function(t, s) { i[s] = e }) });
+                var s = this.settings.rules;
+                t.each(s, function(e, i) { s[e] = t.validator.normalizeRule(i) }), t(this.currentForm).validateDelegate(":text, [type='password'], [type='file'], select, textarea, [type='number'], [type='search'] ,[type='tel'], [type='url'], [type='email'], [type='datetime'], [type='date'], [type='month'], [type='week'], [type='time'], [type='datetime-local'], [type='range'], [type='color'] ", "focusin focusout keyup", e).validateDelegate("[type='radio'], [type='checkbox'], select, option", "click", e), this.settings.invalidHandler && t(this.currentForm).bind("invalid-form.validate", this.settings.invalidHandler)
+            },
+            form: function() { return this.checkForm(), t.extend(this.submitted, this.errorMap), this.invalid = t.extend({}, this.errorMap), this.valid() || t(this.currentForm).triggerHandler("invalid-form", [this]), this.showErrors(), this.valid() },
+            checkForm: function() { this.prepareForm(); for (var t = 0, e = this.currentElements = this.elements(); e[t]; t++) this.check(e[t]); return this.valid() },
+            element: function(e) { e = this.validationTargetFor(this.clean(e)), this.lastElement = e, this.prepareElement(e), this.currentElements = t(e); var i = this.check(e) !== !1; return i ? delete this.invalid[e.name] : this.invalid[e.name] = !0, this.numberOfInvalids() || (this.toHide = this.toHide.add(this.containers)), this.showErrors(), i },
+            showErrors: function(e) {
+                if (e) {
+                    t.extend(this.errorMap, e), this.errorList = [];
+                    for (var i in e) this.errorList.push({ message: e[i], element: this.findByName(i)[0] });
+                    this.successList = t.grep(this.successList, function(t) { return !(t.name in e) })
+                }
+                this.settings.showErrors ? this.settings.showErrors.call(this, this.errorMap, this.errorList) : this.defaultShowErrors()
+            },
+            resetForm: function() { t.fn.resetForm && t(this.currentForm).resetForm(), this.submitted = {}, this.lastElement = null, this.prepareForm(), this.hideErrors(), this.elements().removeClass(this.settings.errorClass).removeData("previousValue") },
+            numberOfInvalids: function() { return this.objectLength(this.invalid) },
+            objectLength: function(t) { var e = 0; for (var i in t) e++; return e },
+            hideErrors: function() { this.addWrapper(this.toHide).hide() },
+            valid: function() { return 0 === this.size() },
+            size: function() { return this.errorList.length },
+            focusInvalid: function() { if (this.settings.focusInvalid) try { t(this.findLastActive() || this.errorList.length && this.errorList[0].element || []).filter(":visible").focus().trigger("focusin") } catch (e) {} },
+            findLastActive: function() { var e = this.lastActive; return e && 1 === t.grep(this.errorList, function(t) { return t.element.name === e.name }).length && e },
+            elements: function() {
+                var e = this,
+                    i = {};
+                return t(this.currentForm).find("input, select, textarea").not(":submit, :reset, :image, [disabled]").not(this.settings.ignore).filter(function() { return !this.name && e.settings.debug && window.console && console.error("%o has no name assigned", this), this.name in i || !e.objectLength(t(this).rules()) ? !1 : (i[this.name] = !0, !0) })
+            },
+            clean: function(e) { return t(e)[0] },
+            errors: function() { var e = this.settings.errorClass.replace(" ", "."); return t(this.settings.errorElement + "." + e, this.errorContext) },
+            reset: function() { this.successList = [], this.errorList = [], this.errorMap = {}, this.toShow = t([]), this.toHide = t([]), this.currentElements = t([]) },
+            prepareForm: function() { this.reset(), this.toHide = this.errors().add(this.containers) },
+            prepareElement: function(t) { this.reset(), this.toHide = this.errorsFor(t) },
+            elementValue: function(e) {
+                var i = t(e).attr("type"),
+                    s = t(e).val();
+                return "radio" === i || "checkbox" === i ? t("input[name='" + t(e).attr("name") + "']:checked").val() : "string" == typeof s ? s.replace(/\r/g, "") : s
+            },
+            check: function(e) {
+                e = this.validationTargetFor(this.clean(e));
+                var i, s = t(e).rules(),
+                    r = !1,
+                    n = this.elementValue(e);
+                for (var a in s) { var u = { method: a, parameters: s[a] }; try { if (i = t.validator.methods[a].call(this, n, e, u.parameters), "dependency-mismatch" === i) { r = !0; continue } if (r = !1, "pending" === i) return this.toHide = this.toHide.not(this.errorsFor(e)), void 0; if (!i) return this.formatAndAdd(e, u), !1 } catch (o) { throw this.settings.debug && window.console && console.log("Exception occurred when checking element " + e.id + ", check the '" + u.method + "' method.", o), o } }
+                return r ? void 0 : (this.objectLength(s) && this.successList.push(e), !0)
+            },
+            customDataMessage: function(e, i) { return t(e).data("msg-" + i.toLowerCase()) || e.attributes && t(e).attr("data-msg-" + i.toLowerCase()) },
+            customMessage: function(t, e) { var i = this.settings.messages[t]; return i && (i.constructor === String ? i : i[e]) },
+            findDefined: function() {
+                for (var t = 0; arguments.length > t; t++)
+                    if (void 0 !== arguments[t]) return arguments[t];
+                return void 0
+            },
+            defaultMessage: function(e, i) { return this.findDefined(this.customMessage(e.name, i), this.customDataMessage(e, i), !this.settings.ignoreTitle && e.title || void 0, t.validator.messages[i], "<strong>Warning: No message defined for " + e.name + "</strong>") },
+            formatAndAdd: function(e, i) {
+                var s = this.defaultMessage(e, i.method),
+                    r = /\$?\{(\d+)\}/g;
+                "function" == typeof s ? s = s.call(this, i.parameters, e) : r.test(s) && (s = t.validator.format(s.replace(r, "{$1}"), i.parameters)), this.errorList.push({ message: s, element: e }), this.errorMap[e.name] = s, this.submitted[e.name] = s
+            },
+            addWrapper: function(t) { return this.settings.wrapper && (t = t.add(t.parent(this.settings.wrapper))), t },
+            defaultShowErrors: function() {
+                var t, e;
+                for (t = 0; this.errorList[t]; t++) {
+                    var i = this.errorList[t];
+                    this.settings.highlight && this.settings.highlight.call(this, i.element, this.settings.errorClass, this.settings.validClass), this.showLabel(i.element, i.message)
+                }
+                if (this.errorList.length && (this.toShow = this.toShow.add(this.containers)), this.settings.success)
+                    for (t = 0; this.successList[t]; t++) this.showLabel(this.successList[t]);
+                if (this.settings.unhighlight)
+                    for (t = 0, e = this.validElements(); e[t]; t++) this.settings.unhighlight.call(this, e[t], this.settings.errorClass, this.settings.validClass);
+                this.toHide = this.toHide.not(this.toShow), this.hideErrors(), this.addWrapper(this.toShow).show()
+            },
+            validElements: function() { return this.currentElements.not(this.invalidElements()) },
+            invalidElements: function() { return t(this.errorList).map(function() { return this.element }) },
+            showLabel: function(e, i) {
+                var s = this.errorsFor(e);
+                s.length ? (s.removeClass(this.settings.validClass).addClass(this.settings.errorClass), s.html(i)) : (s = t("<" + this.settings.errorElement + ">").attr("for", this.idOrName(e)).addClass(this.settings.errorClass).html(i || ""), this.settings.wrapper && (s = s.hide().show().wrap("<" + this.settings.wrapper + "/>").parent()), this.labelContainer.append(s).length || (this.settings.errorPlacement ? this.settings.errorPlacement(s, t(e)) : s.insertAfter(e))), !i && this.settings.success && (s.text(""), "string" == typeof this.settings.success ? s.addClass(this.settings.success) : this.settings.success(s, e)), this.toShow = this.toShow.add(s)
+            },
+            errorsFor: function(e) { var i = this.idOrName(e); return this.errors().filter(function() { return t(this).attr("for") === i }) },
+            idOrName: function(t) { return this.groups[t.name] || (this.checkable(t) ? t.name : t.id || t.name) },
+            validationTargetFor: function(t) { return this.checkable(t) && (t = this.findByName(t.name).not(this.settings.ignore)[0]), t },
+            checkable: function(t) { return /radio|checkbox/i.test(t.type) },
+            findByName: function(e) { return t(this.currentForm).find("[name='" + e + "']") },
+            getLength: function(e, i) {
+                switch (i.nodeName.toLowerCase()) {
+                    case "select":
+                        return t("option:selected", i).length;
+                    case "input":
+                        if (this.checkable(i)) return this.findByName(i.name).filter(":checked").length
+                }
+                return e.length
+            },
+            depend: function(t, e) { return this.dependTypes[typeof t] ? this.dependTypes[typeof t](t, e) : !0 },
+            dependTypes: { "boolean": function(t) { return t }, string: function(e, i) { return !!t(e, i.form).length }, "function": function(t, e) { return t(e) } },
+            optional: function(e) { var i = this.elementValue(e); return !t.validator.methods.required.call(this, i, e) && "dependency-mismatch" },
+            startRequest: function(t) { this.pending[t.name] || (this.pendingRequest++, this.pending[t.name] = !0) },
+            stopRequest: function(e, i) { this.pendingRequest--, 0 > this.pendingRequest && (this.pendingRequest = 0), delete this.pending[e.name], i && 0 === this.pendingRequest && this.formSubmitted && this.form() ? (t(this.currentForm).submit(), this.formSubmitted = !1) : !i && 0 === this.pendingRequest && this.formSubmitted && (t(this.currentForm).triggerHandler("invalid-form", [this]), this.formSubmitted = !1) },
+            previousValue: function(e) { return t.data(e, "previousValue") || t.data(e, "previousValue", { old: null, valid: !0, message: this.defaultMessage(e, "remote") }) }
+        },
+        classRuleSettings: { required: { required: !0 }, email: { email: !0 }, url: { url: !0 }, date: { date: !0 }, dateISO: { dateISO: !0 }, number: { number: !0 }, digits: { digits: !0 }, creditcard: { creditcard: !0 } },
+        addClassRules: function(e, i) { e.constructor === String ? this.classRuleSettings[e] = i : t.extend(this.classRuleSettings, e) },
+        classRules: function(e) {
+            var i = {},
+                s = t(e).attr("class");
+            return s && t.each(s.split(" "), function() { this in t.validator.classRuleSettings && t.extend(i, t.validator.classRuleSettings[this]) }), i
+        },
+        attributeRules: function(e) {
+            var i = {},
+                s = t(e),
+                r = s[0].getAttribute("type");
+            for (var n in t.validator.methods) { var a; "required" === n ? (a = s.get(0).getAttribute(n), "" === a && (a = !0), a = !!a) : a = s.attr(n), /min|max/.test(n) && (null === r || /number|range|text/.test(r)) && (a = Number(a)), a ? i[n] = a : r === n && "range" !== r && (i[n] = !0) }
+            return i.maxlength && /-1|2147483647|524288/.test(i.maxlength) && delete i.maxlength, i
+        },
+        dataRules: function(e) {
+            var i, s, r = {},
+                n = t(e);
+            for (i in t.validator.methods) s = n.data("rule-" + i.toLowerCase()), void 0 !== s && (r[i] = s);
+            return r
+        },
+        staticRules: function(e) {
+            var i = {},
+                s = t.data(e.form, "validator");
+            return s.settings.rules && (i = t.validator.normalizeRule(s.settings.rules[e.name]) || {}), i
+        },
+        normalizeRules: function(e, i) {
+            return t.each(e, function(s, r) {
+                if (r === !1) return delete e[s], void 0;
+                if (r.param || r.depends) {
+                    var n = !0;
+                    switch (typeof r.depends) {
+                        case "string":
+                            n = !!t(r.depends, i.form).length;
+                            break;
+                        case "function":
+                            n = r.depends.call(i, i)
+                    }
+                    n ? e[s] = void 0 !== r.param ? r.param : !0 : delete e[s]
+                }
+            }), t.each(e, function(s, r) { e[s] = t.isFunction(r) ? r(i) : r }), t.each(["minlength", "maxlength"], function() { e[this] && (e[this] = Number(e[this])) }), t.each(["rangelength", "range"], function() {
+                var i;
+                e[this] && (t.isArray(e[this]) ? e[this] = [Number(e[this][0]), Number(e[this][1])] : "string" == typeof e[this] && (i = e[this].split(/[\s,]+/), e[this] = [Number(i[0]), Number(i[1])]))
+            }), t.validator.autoCreateRanges && (e.min && e.max && (e.range = [e.min, e.max], delete e.min, delete e.max), e.minlength && e.maxlength && (e.rangelength = [e.minlength, e.maxlength], delete e.minlength, delete e.maxlength)), e
+        },
+        normalizeRule: function(e) {
+            if ("string" == typeof e) {
+                var i = {};
+                t.each(e.split(/\s/), function() { i[this] = !0 }), e = i
+            }
+            return e
+        },
+        addMethod: function(e, i, s) { t.validator.methods[e] = i, t.validator.messages[e] = void 0 !== s ? s : t.validator.messages[e], 3 > i.length && t.validator.addClassRules(e, t.validator.normalizeRule(e)) },
+        methods: {
+            required: function(e, i, s) { if (!this.depend(s, i)) return "dependency-mismatch"; if ("select" === i.nodeName.toLowerCase()) { var r = t(i).val(); return r && r.length > 0 } return this.checkable(i) ? this.getLength(e, i) > 0 : t.trim(e).length > 0 },
+            email: function(t, e) { return this.optional(e) || /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i.test(t) },
+            url: function(t, e) { return this.optional(e) || /^(https?|s?ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(t) },
+            date: function(t, e) { return this.optional(e) || !/Invalid|NaN/.test("" + new Date(t)) },
+            dateISO: function(t, e) { return this.optional(e) || /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/.test(t) },
+            number: function(t, e) { return this.optional(e) || /^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test(t) },
+            digits: function(t, e) { return this.optional(e) || /^\d+$/.test(t) },
+            creditcard: function(t, e) {
+                if (this.optional(e)) return "dependency-mismatch";
+                if (/[^0-9 \-]+/.test(t)) return !1;
+                var i = 0,
+                    s = 0,
+                    r = !1;
+                t = t.replace(/\D/g, "");
+                for (var n = t.length - 1; n >= 0; n--) {
+                    var a = t.charAt(n);
+                    s = parseInt(a, 10), r && (s *= 2) > 9 && (s -= 9), i += s, r = !r
+                }
+                return 0 === i % 10
+            },
+            minlength: function(e, i, s) { var r = t.isArray(e) ? e.length : this.getLength(t.trim(e), i); return this.optional(i) || r >= s },
+            maxlength: function(e, i, s) { var r = t.isArray(e) ? e.length : this.getLength(t.trim(e), i); return this.optional(i) || s >= r },
+            rangelength: function(e, i, s) { var r = t.isArray(e) ? e.length : this.getLength(t.trim(e), i); return this.optional(i) || r >= s[0] && s[1] >= r },
+            min: function(t, e, i) { return this.optional(e) || t >= i },
+            max: function(t, e, i) { return this.optional(e) || i >= t },
+            range: function(t, e, i) { return this.optional(e) || t >= i[0] && i[1] >= t },
+            equalTo: function(e, i, s) { var r = t(s); return this.settings.onfocusout && r.unbind(".validate-equalTo").bind("blur.validate-equalTo", function() { t(i).valid() }), e === r.val() },
+            remote: function(e, i, s) {
+                if (this.optional(i)) return "dependency-mismatch";
+                var r = this.previousValue(i);
+                if (this.settings.messages[i.name] || (this.settings.messages[i.name] = {}), r.originalMessage = this.settings.messages[i.name].remote, this.settings.messages[i.name].remote = r.message, s = "string" == typeof s && { url: s } || s, r.old === e) return r.valid;
+                r.old = e;
+                var n = this;
+                this.startRequest(i);
+                var a = {};
+                return a[i.name] = e, t.ajax(t.extend(!0, {
+                    url: s,
+                    mode: "abort",
+                    port: "validate" + i.name,
+                    dataType: "json",
+                    data: a,
+                    success: function(s) {
+                        n.settings.messages[i.name].remote = r.originalMessage;
+                        var a = s === !0 || "true" === s;
+                        if (a) {
+                            var u = n.formSubmitted;
+                            n.prepareElement(i), n.formSubmitted = u, n.successList.push(i), delete n.invalid[i.name], n.showErrors()
+                        } else {
+                            var o = {},
+                                l = s || n.defaultMessage(i, "remote");
+                            o[i.name] = r.message = t.isFunction(l) ? l(e) : l, n.invalid[i.name] = !0, n.showErrors(o)
+                        }
+                        r.valid = a, n.stopRequest(i, a)
+                    }
+                }, s)), "pending"
+            }
+        }
+    }), t.format = t.validator.format
+})(jQuery),
+function(t) {
+    var e = {};
+    if (t.ajaxPrefilter) t.ajaxPrefilter(function(t, i, s) { var r = t.port; "abort" === t.mode && (e[r] && e[r].abort(), e[r] = s) });
+    else {
+        var i = t.ajax;
+        t.ajax = function(s) {
+            var r = ("mode" in s ? s : t.ajaxSettings).mode,
+                n = ("port" in s ? s : t.ajaxSettings).port;
+            return "abort" === r ? (e[n] && e[n].abort(), e[n] = i.apply(this, arguments), e[n]) : i.apply(this, arguments)
+        }
     }
-  };
-
-  validate.exposeModule(validate, this, exports, module, define);
-}).call(this,
-        typeof exports !== 'undefined' ? /* istanbul ignore next */ exports : null,
-        typeof module !== 'undefined' ? /* istanbul ignore next */ module : null,
-        typeof define !== 'undefined' ? /* istanbul ignore next */ define : null);
+}(jQuery),
+function(t) { t.extend(t.fn, { validateDelegate: function(e, i, s) { return this.bind(i, function(i) { var r = t(i.target); return r.is(e) ? s.apply(r, arguments) : void 0 }) } }) }(jQuery);
