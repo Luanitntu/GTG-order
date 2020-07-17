@@ -26,6 +26,11 @@
     <link rel="stylesheet" type="text/css" href="css/mystyle.css">
     <link rel="stylesheet" type="text/css" href="css/customer.css">
     <link rel="stylesheet" type="text/css" href="css/responsive.css">
+    <!-- ----------- -->
+    <link rel="stylesheet" href="lib/dropzone-5.7.0/dist/dropzone.css">
+    <link rel="stylesheet" href="lib/dropzone-5.7.0/dist/basic.css">
+    <link rel="stylesheet" href="lib/dropzone-5.7.0/dist/dropzone.css">
+    <link href="https://unpkg.com/cropperjs/dist/cropper.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -131,7 +136,9 @@
                                                         <p class="p-description">
                                                             Description
                                                         </p>
-                                                        <input type="file" name="uploadfile" id="uploadfile">
+                                                        <form action="/file-upload" class="">
+                                                            <div class="dropzone" id="myDropzone"></div>
+                                                        </form>
                                                     </div>
                                                     <div class="next-step">
                                                         <ul>
@@ -156,6 +163,7 @@
                                             </div>
                                         </div>
                                     </form>
+
                                 </div>
                             </div>
                             <div class="best-sellers">
@@ -272,6 +280,9 @@
 <script type="text/javascript" src="lib/wow.min.js"></script>
 <!-- validate -->
 <script type="text/javascript" src="lib/validate.js"></script>
+<!-- dropzone js -->
+<script type="text/javascript" src="lib/dropzone-5.7.0/dist/dropzone.js"></script>
+<script src="https://unpkg.com/cropperjs"></script>
 <!-- lazy js -->
 <script type="text/javascript" src="lib/jquery.lazy.min.js"></script>
 <!-- main js -->

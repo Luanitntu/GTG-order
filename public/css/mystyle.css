@@ -1548,6 +1548,7 @@
 }
 
 #footer .footer-f .social-f ul li {
+    cursor: pointer;
     width: 68px;
     height: 68px;
     position: relative;
@@ -1559,4 +1560,68 @@
     transition: background-color 0.3s ease-in-out;
     -webkit-transition: background-color 0.3s ease-in-out;
     -moz-transition: background-color 0.3s ease-in-out;
+}
+
+#footer .footer-f .social-f ul li:after {
+    content: '';
+    width: 68px;
+    height: 68px;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url(https://gtgplus.com/wp-content/themes/ayro-child/images/border.png);
+    position: absolute;
+    top: -2px;
+    left: -2px;
+}
+
+#footer .footer-f .social-f ul li:hover {
+    border-color: #e41115;
+    transition: background-color 0.3s ease-in-out;
+    -webkit-transition: background-color 0.3s ease-in-out;
+    -moz-transition: background-color 0.3s ease-in-out;
+}
+
+#footer .footer-f .social-f ul li:hover:after {
+    width: 0;
+    height: 0;
+}
+
+#footer .footer-f .social-f ul li a i {
+    opacity: 0;
+}
+
+#footer .footer-f .social-f ul li a:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
+#footer .footer-f .social-f ul li a.gg:after {
+    background-image: url(https://gtgplus.com/wp-content/themes/ayro-child/images/gg.png);
+    width: 41px;
+    height: 42px;
+}
+
+#footer .footer-f .social-f ul li a.yelp:after {
+    background-image: url(https://gtgplus.com/wp-content/themes/ayro-child/images/yelp.png);
+    width: 32px;
+    height: 42px;
+}
+
+#footer .footer-f .social-f ul li a.fb:after {
+    background-image: url(https://gtgplus.com/wp-content/themes/ayro-child/images/fb.png);
+    width: 24px;
+    height: 44px;
+}
+
+#footer .footer-f .social-f ul li a.insta:after {
+    background-image: url(https://gtgplus.com/wp-content/themes/ayro-child/images/instag.png);
+    width: 40px;
+    height: 40px;
 }

@@ -439,6 +439,49 @@
   #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing .billing-right {
         width: 100%;
     }
+  /*===========Footer===========*/
+    #footer .footer-f .list-contact ul li a,
+  #footer .footer-f .list-contact ul li {
+        font-size: 22px;
+    }
+
+    #footer .footer-f .social-f ul li {
+        width: 50px;
+        height: 50px;
+    }
+
+    #footer .footer-f .social-f ul li:after {
+        width: 50px;
+        height: 50px;
+    }
+
+    #footer .footer-f .social-f ul li a.gg:after {
+        background-image: url(https://gtgplus.com/wp-content/themes/ayro-child/images/gg.png);
+        width: 28px;
+        height: 28px;
+        background-size: contain;
+    }
+
+    #footer .footer-f .social-f ul li a.yelp:after {
+        background-image: url(https://gtgplus.com/wp-content/themes/ayro-child/images/yelp.png);
+        width: 22px;
+        height: 28px;
+        background-size: contain;
+    }
+
+    #footer .footer-f .social-f ul li a.fb:after {
+        background-image: url(https://gtgplus.com/wp-content/themes/ayro-child/images/fb.png);
+        width: 15px;
+        height: 29px;
+        background-size: contain;
+    }
+
+    #footer .footer-f .social-f ul li a.insta:after {
+        background-image: url(https://gtgplus.com/wp-content/themes/ayro-child/images/instag.png);
+        width: 26px;
+        height: 26px;
+        background-size: contain;
+    }
 }
 
 @media only screen and (max-width: 414px) {
@@ -548,6 +591,28 @@
 
     #page-register .wrap-register .wrap-content__register .title-register p {
         line-height: 1.5;
+    }
+  /*========Footer==============*/
+    #footer {
+        background-color: #eef2f5;
+        padding-top: 0px;
+    }
+
+    #footer .footer-f .list-contact ul {
+        padding-left: 0;
+        display: flex;
+        flex-direction: column;
+        list-style: none;
+        justify-content: flex-start;
+        align-items: flex-start;
+        margin-bottom: 25px;
+        margin-top: 0;
+        flex-wrap: wrap;
+    }
+
+    #footer .footer-f .list-contact ul li:nth-child(1):before {
+        width: 7px;
+        height: 7px;
     }
 }
 

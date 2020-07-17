@@ -1,4 +1,3 @@
-// --------------button menu----------
 jQuery(document).ready(function() {
     jQuery(".button-sticky").click(function() {
         jQuery("#header-page .sticky .wrap-menu .wrap-header-menu .navbar-menu-mobile").toggleClass("active");
