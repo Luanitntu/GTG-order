@@ -4,6 +4,7 @@ jQuery(document).ready(function() {
     validateCheckout();
     showPass();
     validateRegister();
+    checked();
 });
 // =======================PopUP=====================================
 function registerPopup() {
@@ -27,17 +28,9 @@ function click_tab() {
 
     jQuery('.next-step li').click(function() {
         var comment = $.trim($("#myTextArea").val());
-        // var file = document.getElementById("uploadfile").value;
-        // if (file == 0) {
-        //     console.log("no files selected");
-        // } else {
-        //     jQuery('#page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content ul li.step-2').addClass('active');
-        //     jQuery('.tab-pane.step-2').addClass('active');
-        //     jQuery('.tab-pane.step-2').addClass('show');
-        //     jQuery('#page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content ul li.step-1').removeClass('active');
-        //     jQuery('.tab-pane.step-1').removeClass('active');
-        // }
-        if (comment != "") {
+        var file = $.trim($(".dz-image img").attr("src"));
+        // console.log(file);
+        if (comment != "" || file != 0) {
             jQuery('#page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content ul li.step-2').addClass('active');
             jQuery('.tab-pane.step-2').addClass('active');
             jQuery('.tab-pane.step-2').addClass('show');
@@ -115,7 +108,7 @@ function validateRegister() {
             confirm_pass: {
                 required: true,
                 minlength: 6,
-                equalTo: "#pass_register"
+                equalTo: "#type-password"
             },
         },
         messages: {
@@ -129,6 +122,25 @@ function validateRegister() {
                 minlength: 'Please enter the least 6 characters',
                 equalTo: "These passwords don't match"
             },
+        }
+    });
+}
+
+function checked() {
+    var item_checked1 = jQuery('.wrap-form-billing .wrap-billing input[type="text"]');
+    var item_checked2 = jQuery('.wrap-form-billing .wrap-billing select');
+    var item_checked3 = jQuery('.wrap-form-billing .wrap-billing input[type="tel"]');
+
+    $('#check_add').click(function() {
+        //check if checkbox is checked
+        if ($(this).is(':checked')) {
+            item_checked1.attr('disabled', true); //disable input
+            item_checked2.attr('disabled', true); //disable input
+            item_checked3.attr('disabled', true); //disable input
+        } else {
+            item_checked1.removeAttr('disabled'); //enable input
+            item_checked2.removeAttr('disabled'); //enable input
+            item_checked3.removeAttr('disabled'); //enable input
         }
     });
 }

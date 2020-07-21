@@ -14,59 +14,27 @@ jQuery(document).ready(function() {
             alert(response);
         },
         transformFile: function(file, done) {
-            // Create Dropzone reference for use in confirm button click handler
             var myDropZone = this;
-            // Create the image editor overlay
-            var editor = document.createElement('div');
-            editor.style.position = 'fixed';
-            editor.style.left = 0;
-            editor.style.right = 0;
-            editor.style.top = 0;
-            editor.style.bottom = 0;
-            editor.style.zIndex = 9999;
-            editor.style.backgroundColor = '#000';
-            document.body.appendChild(editor);
-            // Create confirm button at the top left of the viewport
-            var buttonConfirm = document.createElement('button');
-            buttonConfirm.style.position = 'absolute';
-            buttonConfirm.style.left = '10px';
-            buttonConfirm.style.top = '10px';
-            buttonConfirm.style.zIndex = 9999;
-            buttonConfirm.textContent = 'Confirm';
-            editor.appendChild(buttonConfirm);
-            buttonConfirm.addEventListener('click', function() {
-                // Get the canvas with image data from Cropper.js
-                var canvas = cropper.getCroppedCanvas({
-                    width: 256,
-                    height: 256
-                });
-                // Turn the canvas into a Blob (file object without a name)
-                canvas.toBlob(function(blob) {
-                    // Create a new Dropzone file thumbnail
-                    myDropZone.createThumbnail(
-                        blob,
-                        myDropZone.options.thumbnailWidth,
-                        myDropZone.options.thumbnailHeight,
-                        myDropZone.options.thumbnailMethod,
-                        false,
-                        function(dataURL) {
-
-                            // Update the Dropzone file thumbnail
-                            myDropZone.emit('thumbnail', file, dataURL);
-                            // Return the file to Dropzone
-                            done(blob);
-                        });
-                });
-                // Remove the editor from the view
-                document.body.removeChild(editor);
+            var doka = Doka.create();
+            // Edit the file and wait for confirm
+            doka.edit(file).then(function(output) {
+                // Get blob from Doka output object
+                var blob = output.file;
+                // Create a new Dropzone file thumbnail
+                myDropZone.createThumbnail(
+                    blob,
+                    myDropZone.options.thumbnailWidth,
+                    myDropZone.options.thumbnailHeight,
+                    myDropZone.options.thumbnailMethod,
+                    false,
+                    function(dataURL) {
+                        // Update the Dropzone file thumbnail
+                        myDropZone.emit('thumbnail', file, dataURL);
+                        // Tell Dropzone of the new file
+                        done(blob);
+                    }
+                );
             });
-            // Create an image node for Cropper.js
-            var image = new Image();
-            image.src = URL.createObjectURL(file);
-            editor.appendChild(image);
-
-            // Create Cropper.js
-            var cropper = new Cropper(image, { aspectRatio: 1 });
         }
     });
 });
@@ -90,6 +58,7 @@ jQuery(document).ready(function() {
     validateCheckout();
     showPass();
     validateRegister();
+    checked();
 });
 // =======================PopUP=====================================
 function registerPopup() {
@@ -113,17 +82,9 @@ function click_tab() {
 
     jQuery('.next-step li').click(function() {
         var comment = $.trim($("#myTextArea").val());
-        // var file = document.getElementById("uploadfile").value;
-        // if (file == 0) {
-        //     console.log("no files selected");
-        // } else {
-        //     jQuery('#page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content ul li.step-2').addClass('active');
-        //     jQuery('.tab-pane.step-2').addClass('active');
-        //     jQuery('.tab-pane.step-2').addClass('show');
-        //     jQuery('#page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content ul li.step-1').removeClass('active');
-        //     jQuery('.tab-pane.step-1').removeClass('active');
-        // }
-        if (comment != "") {
+        var file = $.trim($(".dz-image img").attr("src"));
+        // console.log(file);
+        if (comment != "" || file != 0) {
             jQuery('#page-detail-option .wrap-detail-option .wrap-detail-option-step .wrap-form-step .wrap-content ul li.step-2').addClass('active');
             jQuery('.tab-pane.step-2').addClass('active');
             jQuery('.tab-pane.step-2').addClass('show');
@@ -201,7 +162,7 @@ function validateRegister() {
             confirm_pass: {
                 required: true,
                 minlength: 6,
-                equalTo: "#pass_register"
+                equalTo: "#type-password"
             },
         },
         messages: {
@@ -215,6 +176,25 @@ function validateRegister() {
                 minlength: 'Please enter the least 6 characters',
                 equalTo: "These passwords don't match"
             },
+        }
+    });
+}
+
+function checked() {
+    var item_checked1 = jQuery('.wrap-form-billing .wrap-billing input[type="text"]');
+    var item_checked2 = jQuery('.wrap-form-billing .wrap-billing select');
+    var item_checked3 = jQuery('.wrap-form-billing .wrap-billing input[type="tel"]');
+
+    $('#check_add').click(function() {
+        //check if checkbox is checked
+        if ($(this).is(':checked')) {
+            item_checked1.attr('disabled', true); //disable input
+            item_checked2.attr('disabled', true); //disable input
+            item_checked3.attr('disabled', true); //disable input
+        } else {
+            item_checked1.removeAttr('disabled'); //enable input
+            item_checked2.removeAttr('disabled'); //enable input
+            item_checked3.removeAttr('disabled'); //enable input
         }
     });
 }

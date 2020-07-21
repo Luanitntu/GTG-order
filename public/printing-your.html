@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="lib/dropzone-5.7.0/dist/basic.css">
     <link rel="stylesheet" href="lib/dropzone-5.7.0/dist/dropzone.css">
     <link href="https://unpkg.com/cropperjs/dist/cropper.css" rel="stylesheet" />
+    <link href="lib/jQuery-File-Upload-master/js/vendor/doka.min.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -139,6 +140,7 @@
                                                         <form action="/file-upload" class="">
                                                             <div class="dropzone" id="myDropzone"></div>
                                                         </form>
+                                                        <span class="error"></span>
                                                     </div>
                                                     <div class="next-step">
                                                         <ul>
@@ -283,6 +285,8 @@
 <!-- dropzone js -->
 <script type="text/javascript" src="lib/dropzone-5.7.0/dist/dropzone.js"></script>
 <script src="https://unpkg.com/cropperjs"></script>
+<script src="lib/jQuery-File-Upload-master/js/vendor/doka.polyfill.loader.js"></script>
+<script src="lib/jQuery-File-Upload-master/js/vendor/doka.min.js"></script>
 <!-- lazy js -->
 <script type="text/javascript" src="lib/jquery.lazy.min.js"></script>
 <!-- main js -->
