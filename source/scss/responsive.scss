@@ -406,6 +406,12 @@
         width: 100%;
     }
     /*===========Footer===========*/
+    #footer {
+        padding-top: 40px;
+    }
+    #page-detail-option .wrap-detail-option .best-sellers {
+        margin-bottom: 0;
+    }
     #footer .footer-f .list-contact ul li a,
     #footer .footer-f .list-contact ul li {
         font-size: 22px;
@@ -536,10 +542,6 @@
         line-height: 1.5;
     }
     /*========Footer==============*/
-    #footer {
-        background-color: #eef2f5;
-        padding-top: 0px;
-    }
     #footer .footer-f .list-contact ul {
         padding-left: 0;
         display: flex;

@@ -25,12 +25,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Bootstrap styles -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
-    <!--[if gte IE 9]><!-->
-    <!-- Carbon Ads styles -->
-    <!-- <link rel="stylesheet" href="lib/jQuery-File-Upload-master/css/vendor/carbon.css" /> -->
-    <!-- Doka Image Editor styles -->
-    <link rel="stylesheet" href="lib/jQuery-File-Upload-master/js/vendor/doka.min.css" />
-    <!--<![endif]-->
     <!-- Generic page styles -->
     <style>
         #navigation {
@@ -58,6 +52,13 @@
 
 <body>
     <div class="container">
+        <h1 id="title">jQuery File Upload Demo</h1>
+        <blockquote id="description">
+            <p>
+                File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for jQuery.<br /> Supports cross-domain, chunked and resumable file uploads and client-side image resizing.<br
+                /> Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.
+            </p>
+        </blockquote>
         <!-- The file upload form used as target for the file upload widget -->
         <form id="fileupload" action="https://jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data">
             <!-- Redirect browsers with JavaScript disabled to the origin page -->
@@ -106,18 +107,8 @@
                 <tbody class="files"></tbody>
             </table>
         </form>
-        <!--[if gte IE 9]><!-->
-        <!-- Carbon Ads -->
-        <!-- The blueimp Gallery widget -->
-        <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" aria-label="image gallery" aria-modal="true" role="dialog" data-filter=":even">
-            <div class="slides" aria-live="polite"></div>
-            <h3 class="title"></h3>
-            <a class="prev" aria-controls="blueimp-gallery" aria-label="previous slide" aria-keyshortcuts="ArrowLeft"></a>
-            <a class="next" aria-controls="blueimp-gallery" aria-label="next slide" aria-keyshortcuts="ArrowRight"></a>
-            <a class="close" aria-controls="blueimp-gallery" aria-label="close" aria-keyshortcuts="Escape"></a>
-            <a class="play-pause" aria-controls="blueimp-gallery" aria-label="play slideshow" aria-keyshortcuts="Space" aria-pressed="false" role="button"></a>
-            <ol class="indicator"></ol>
-        </div>
+
+
         <!-- The template to display files available for upload -->
         <script id="template-upload" type="text/x-tmpl">
             {% for (var i=0, file; file=o.files[i]; i++) { %}
@@ -135,28 +126,24 @@
                         <div class="progress-bar progress-bar-success" style="width:0%;"></div>
                     </div>
                 </td>
-
-
                 <td>
-
-                    <button class="btn btn-success edit" data-index="0">
-                            <i class="glyphicon glyphicon-edit"></i>
-                            <span>Edit</span>
-                        </button>
-
-
-                    <button class="btn btn-primary start">
-                              <i class="glyphicon glyphicon-upload"></i>
-                              <span>Start</span>
-                          </button>
-
-
+                    {% if (!o.options.autoUpload && o.options.edit && o.options.loadImageFileTypes.test(file.type)) { %}
+                    <button class="btn btn-success edit" data-index="{%=i%}" disabled>
+                        <i class="glyphicon glyphicon-edit"></i>
+                        <span>Edit</span>
+                    </button> {% } %} {% if (!i && !o.options.autoUpload) { %}
+                    <button class="btn btn-primary start" disabled>
+                          <i class="glyphicon glyphicon-upload"></i>
+                          <span>Start</span>
+                      </button> {% } %} {% if (!i) { %}
                     <button class="btn btn-warning cancel">
-                              <i class="glyphicon glyphicon-ban-circle"></i>
-                              <span>Cancel</span>
-                          </button>
-
-
+                          <i class="glyphicon glyphicon-ban-circle"></i>
+                          <span>Cancel</span>
+                      </button> {% } %}
+                    <button class="btn btn-success edit" data-index="0">
+                        <i class="glyphicon glyphicon-edit"></i>
+                        <span>Edit</span>
+                    </button>
                 </td>
             </tr>
             {% } %}
@@ -200,19 +187,11 @@
             </tr>
             {% } %}
         </script>
-        <!--[if gte IE 9]><!-->
-
-        <!--<![endif]-->
-        <!-- jquery -->
-        <script type="text/javascript" src="lib/jquery-3.4.1.min.js"></script>
-        <script type="text/javascript" src="lib/jquery-migrate-3.1.0.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
-
         <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
-        <script src="lib/jQuery-File-Upload-master/js/vendor/jquery.ui.widget.js"></script>
-        <!-- Doka Image Editor library -->
         <script src="lib/jQuery-File-Upload-master/js/vendor/doka.polyfill.loader.js"></script>
         <script src="lib/jQuery-File-Upload-master/js/vendor/doka.min.js"></script>
+        <script src="lib/jQuery-File-Upload-master/js/vendor/jquery.ui.widget.js"></script>
         <!-- The Templates plugin is included to render the upload/download listings -->
         <script src="https://blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
         <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
