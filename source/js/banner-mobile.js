@@ -4,6 +4,8 @@ jQuery(document).ready(function() {
         url: "/file/post",
         paramName: "file",
         uploadMultiple: true,
+        maxFiles: 2,
+        acceptedFiles: 'image/*',
         complete: function(file) {
             if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
                 alert('Complete');

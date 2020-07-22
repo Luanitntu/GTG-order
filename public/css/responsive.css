@@ -617,6 +617,17 @@
         width: 7px;
         height: 7px;
     }
+  /*================Page Check Out Table Total===================*/
+    #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table thead tr th,
+  #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tbody tr.cart_item td,
+  #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.cart-subtotal th,
+  #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.fee,
+  #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.fee th,
+  #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.order-total th,
+  #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.order-total td {
+        font-size: 18px;
+        padding: 6px;
+    }
 }
 
 @media only screen and (max-width: 375px) {

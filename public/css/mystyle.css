@@ -765,6 +765,10 @@
     position: absolute;
 }
 
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content {
+          /*======================== Table Tax and Total =============================*/
+}
+
 #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-shipping {
     margin-bottom: 28px;
     padding: 0 80px;
@@ -784,7 +788,7 @@
 }
 
 #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-shipping .wrap-shipping .shipping-left,
-            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-shipping .wrap-shipping .shipping-right {
+              #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-shipping .wrap-shipping .shipping-right {
     width: 48%;
 }
 
@@ -797,7 +801,7 @@
 }
 
 #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-shipping .wrap-shipping input[type="text"],
-            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-shipping .wrap-shipping input[type="tel"] {
+              #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-shipping .wrap-shipping input[type="tel"] {
     width: 100%;
     border: 1px solid #cccccc;
     outline: none;
@@ -839,8 +843,8 @@
 }
 
 #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-2,
-          #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-3,
-          #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.pay-card {
+            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-3,
+            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.pay-card {
     background: #dc2f2e;
     border: 3px solid #c10000;
     font-size: 25px;
@@ -855,8 +859,8 @@
 }
 
 #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-2:before,
-            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-3:before,
-            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.pay-card:before {
+              #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-3:before,
+              #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.pay-card:before {
     content: '';
     width: 54px;
     height: 100%;
@@ -869,8 +873,8 @@
 }
 
 #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-2:after,
-            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-3:after,
-            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.pay-card:after {
+              #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-3:after,
+              #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.pay-card:after {
     content: "";
     width: 14px;
     height: 10px;
@@ -884,8 +888,8 @@
 }
 
 #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-2:hover:after,
-            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-3:hover:after,
-            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.pay-card:hover:after {
+              #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.next-step-3:hover:after,
+              #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .next-step ul li.pay-card:hover:after {
     right: 10px;
     transition: all ease-in-out 0.4s;
 }
@@ -931,13 +935,13 @@
 }
 
 #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing .billing-left,
-            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing .billing-right {
+              #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing .billing-right {
     width: 48%;
 }
 
 #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing input[type="text"],
-            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing input[type="tel"],
-            #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing select {
+              #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing input[type="tel"],
+              #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing select {
     width: 100%;
     border: 1px solid #cccccc;
     outline: none;
@@ -954,7 +958,7 @@
 }
 
 #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing .billing-right .wrap-address-billing .state-billing,
-              #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing .billing-right .wrap-address-billing .city-billing {
+                #page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content .wrap-form-billing .wrap-billing .billing-right .wrap-address-billing .city-billing {
     width: 48%;
 }
 
@@ -982,6 +986,122 @@
     font-family: "Lato";
     color: #1c1c1c;
     line-height: 1.313;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review {
+    width: 100%;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 0 -1px 24px 0;
+    text-align: left;
+    width: 100%;
+    border-radius: 5px;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table thead tr {
+    background: #ca1f27;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table thead tr th {
+    font-size: 20px;
+    font-family: "Nexa Light";
+    color: #fff;
+    text-transform: uppercase;
+    line-height: 1.5;
+    margin-bottom: 0;
+    padding: 9px 10px;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table thead tr th.product-name {
+    border-right: 1px solid #fff;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tbody tr.cart_item td {
+    font-size: 20px;
+    font-family: "Nexa Light";
+    color: #1f1f1f;
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tbody tr td {
+    border: 1px solid #1f1f1f;
+    padding: 9px 10px;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.cart-subtotal {
+    background: #ca1f27;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.cart-subtotal th {
+    border-right: 1px solid #fff;
+    font-size: 20px;
+    font-family: "Nexa Light";
+    color: #fff;
+    text-transform: uppercase;
+    line-height: 1.5;
+    margin-bottom: 0;
+    padding: 9px 10px;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.cart-subtotal td {
+    font-size: 20px;
+    font-family: "Nexa Light";
+    color: #fff;
+    text-transform: uppercase;
+    line-height: 1.5;
+    margin-bottom: 0;
+    padding: 9px 10px;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.fee {
+    font-size: 20px;
+    font-family: "Nexa Light";
+    color: #1f1f1f;
+    line-height: 1.5;
+    margin-bottom: 0;
+    border: 1px solid #1f1f1f !important;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.fee th {
+    border: 1px solid #1f1f1f !important;
+    padding: 9px 10px;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.fee td {
+    font-size: 20px;
+    font-family: "Nexa Light";
+    text-transform: uppercase;
+    line-height: 1.5;
+    margin-bottom: 0;
+    padding: 9px 10px;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.order-total {
+    background: #ca1f27;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.order-total th {
+    border-right: 1px solid #fff;
+    font-size: 20px;
+    font-family: "Nexa Light";
+    color: #fff;
+    text-transform: uppercase;
+    line-height: 1.5;
+    margin-bottom: 0;
+    padding: 9px 10px;
+}
+
+#page-checkout .wrap-checkout .wrap-checkout-step .wrap-form-step .wrap-content .tab-content #order_review table.shop_table tfoot tr.order-total td {
+    font-size: 20px;
+    font-family: "Nexa Light";
+    color: #fff;
+    text-transform: uppercase;
+    line-height: 1.5;
+    margin-bottom: 0;
+    padding: 9px 10px;
 }
 
 #page-detail-option {

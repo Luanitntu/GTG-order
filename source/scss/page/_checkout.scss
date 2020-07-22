@@ -285,6 +285,117 @@
                                 }
                             }
                         }
+                        /*======================== Table Tax and Total =============================*/
+                        #order_review {
+                            width: 100%;
+                            table.shop_table {
+                                border: 1px solid rgba(0, 0, 0, .1);
+                                margin: 0 -1px 24px 0;
+                                text-align: left;
+                                width: 100%;
+                                border-radius: 5px;
+                                thead {
+                                    tr {
+                                        background: #ca1f27;
+                                        th {
+                                            font-size: 20px;
+                                            font-family: "Nexa Light";
+                                            color: #fff;
+                                            text-transform: uppercase;
+                                            line-height: 1.5;
+                                            margin-bottom: 0;
+                                            padding: 9px 10px;
+                                            &.product-name {
+                                                border-right: 1px solid #fff;
+                                            }
+                                        }
+                                    }
+                                }
+                                tbody {
+                                    tr.cart_item {
+                                        td {
+                                            font-size: 20px;
+                                            font-family: "Nexa Light";
+                                            color: #1f1f1f;
+                                            line-height: 1.6;
+                                            margin-bottom: 0;
+                                        }
+                                    }
+                                    tr {
+                                        td {
+                                            border: 1px solid #1f1f1f;
+                                            padding: 9px 10px;
+                                        }
+                                    }
+                                }
+                                tfoot {
+                                    tr.cart-subtotal {
+                                        background: #ca1f27;
+                                        th {
+                                            border-right: 1px solid #fff;
+                                            font-size: 20px;
+                                            font-family: "Nexa Light";
+                                            color: #fff;
+                                            text-transform: uppercase;
+                                            line-height: 1.5;
+                                            margin-bottom: 0;
+                                            padding: 9px 10px;
+                                        }
+                                        td {
+                                            font-size: 20px;
+                                            font-family: "Nexa Light";
+                                            color: #fff;
+                                            text-transform: uppercase;
+                                            line-height: 1.5;
+                                            margin-bottom: 0;
+                                            padding: 9px 10px;
+                                        }
+                                    }
+                                    tr.fee {
+                                        font-size: 20px;
+                                        font-family: "Nexa Light";
+                                        color: #1f1f1f;
+                                        line-height: 1.5;
+                                        margin-bottom: 0;
+                                        border: 1px solid #1f1f1f !important;
+                                        th {
+                                            border: 1px solid #1f1f1f !important;
+                                            padding: 9px 10px
+                                        }
+                                        td {
+                                            font-size: 20px;
+                                            font-family: "Nexa Light";
+                                            text-transform: uppercase;
+                                            line-height: 1.5;
+                                            margin-bottom: 0;
+                                            padding: 9px 10px;
+                                        }
+                                    }
+                                    tr.order-total {
+                                        background: #ca1f27;
+                                        th {
+                                            border-right: 1px solid #fff;
+                                            font-size: 20px;
+                                            font-family: "Nexa Light";
+                                            color: #fff;
+                                            text-transform: uppercase;
+                                            line-height: 1.5;
+                                            margin-bottom: 0;
+                                            padding: 9px 10px;
+                                        }
+                                        td {
+                                            font-size: 20px;
+                                            font-family: "Nexa Light";
+                                            color: #fff;
+                                            text-transform: uppercase;
+                                            line-height: 1.5;
+                                            margin-bottom: 0;
+                                            padding: 9px 10px;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
